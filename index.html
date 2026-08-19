@@ -3,41 +3,89 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Nice Hat Thanks — tiny, useful smart-home hardware.">
+  <meta name="description" content="Nice Hat Thanks makes tiny, thoughtful smart-home hardware for Home Assistant.">
   <title>Nice Hat Thanks</title>
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
   <header class="site-header">
-    <a class="brand" href="/">Nice Hat Thanks</a>
+    <a class="brand" href="/" aria-label="Nice Hat Thanks home">Nice Hat Thanks</a>
     <nav aria-label="Main navigation">
-      <a href="#about">About</a>
+      <a href="#product">Product</a>
+      <a href="#principles">Why it exists</a>
       <a href="https://github.com/NiceHatThanks" target="_blank" rel="noreferrer">GitHub</a>
     </nav>
   </header>
 
   <main>
     <section class="hero">
-      <p class="eyebrow">SMALL HARDWARE. BIG IDEAS.</p>
-      <h1>Useful little things<br>for your smart home.</h1>
-      <p class="intro">Tiny, local and hackable hardware made to work nicely with Home Assistant.</p>
-      <div class="actions">
-        <a class="button primary" href="#about">See what we're making</a>
-        <a class="button secondary" href="https://github.com/NiceHatThanks" target="_blank" rel="noreferrer">View on GitHub</a>
+      <div class="hero-copy">
+        <p class="eyebrow">SMALL HARDWARE. THOUGHTFULLY MADE.</p>
+        <h1>Smart-home hardware that quietly gets on with it.</h1>
+        <p class="intro">Compact, local-first devices designed for Home Assistant. Simple enough to use every day, open enough to make your own.</p>
+        <div class="actions">
+          <a class="button primary" href="#product">Meet the first node</a>
+          <a class="button secondary" href="https://github.com/NiceHatThanks" target="_blank" rel="noreferrer">Explore GitHub</a>
+        </div>
+      </div>
+      <div class="hero-object" aria-hidden="true">
+        <div class="device-shadow"></div>
+        <div class="device-card">
+          <span class="device-light one"></span>
+          <span class="device-light two"></span>
+          <span class="device-button left"></span>
+          <span class="device-button right"></span>
+        </div>
       </div>
     </section>
 
-    <section class="about" id="about">
-      <p class="eyebrow">FIRST SCOOP</p>
-      <h2>A tiny room node.</h2>
-      <p>Buttons, lights and optional presence sensing in a tiny USB-C powered package. Built around ESPHome, designed for Home Assistant, and made to be simple enough to put everywhere.</p>
-      <p class="status">More soon.</p>
+    <section class="product-panel" id="product">
+      <div class="section-copy">
+        <p class="eyebrow">THE FIRST NODE</p>
+        <h2>Small enough to disappear. Useful enough to put everywhere.</h2>
+      </div>
+      <div class="product-grid">
+        <article>
+          <h3>Physical controls</h3>
+          <p>Two tactile buttons give scenes, lights, fans and automations a proper place in the room.</p>
+        </article>
+        <article>
+          <h3>Clear feedback</h3>
+          <p>Three configurable LEDs can show states, alerts or subtle status without needing another screen.</p>
+        </article>
+        <article>
+          <h3>Optional presence</h3>
+          <p>Add mmWave sensing for room-aware automations that react without relying on motion alone.</p>
+        </article>
+        <article>
+          <h3>Local by design</h3>
+          <p>Built around ESPHome and Home Assistant, with no cloud account required to make it useful.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="principles" id="principles">
+      <div>
+        <p class="eyebrow">WHY NICE HAT THANKS</p>
+        <h2>Less gadget. More infrastructure.</h2>
+      </div>
+      <div class="principles-copy">
+        <p>The goal is simple: smart-home hardware should feel dependable, unobtrusive and easy to understand.</p>
+        <p>That means small enclosures, local control, sensible defaults, open documentation and hardware you can actually adapt.</p>
+      </div>
+    </section>
+
+    <section class="closing-card">
+      <p class="eyebrow">IN DEVELOPMENT</p>
+      <h2>The first batch is on its way.</h2>
+      <p>Hardware, firmware and documentation are being developed in the open. More details soon.</p>
+      <a class="text-link" href="https://github.com/NiceHatThanks" target="_blank" rel="noreferrer">Follow the project on GitHub →</a>
     </section>
   </main>
 
   <footer>
     <span>Nice Hat Thanks</span>
-    <span>Made in the UK</span>
+    <span>Made in the UK · Built for Home Assistant</span>
   </footer>
 
   <script src="js/main.js"></script>
