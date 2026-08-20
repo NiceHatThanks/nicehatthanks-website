@@ -1,5 +1,5 @@
-// Extra interaction layer for the Scoopy demo: visible LED illumination and a
-// site-wide light/dark theme controlled by the real upper Scoopy button.
+// Extra interaction layer for the Scoopy demo: visible LED illumination,
+// whole-site light/dark control and pointer/touch proximity feedback.
 (function () {
   const demo = document.getElementById('interactive-demo');
   if (!demo) return;
@@ -8,6 +8,7 @@
   const deviceCanvas = demo.querySelector('.demo-device');
   const deviceWrap = demo.querySelector('.demo-device-wrap');
   const eventLabel = demo.querySelector('.demo-event');
+  const presenceText = demo.querySelector('.demo-presence-text');
   if (!room || !deviceCanvas || !deviceWrap) return;
 
   const overlay = document.createElement('canvas');
@@ -59,8 +60,8 @@
     }
     .demo-device { position:relative; z-index:3; }
     .demo-hint { z-index:5; }
-    .demo-room.theme-dark .demo-event:before { content:'● '; color:#7de28b; }
-    .demo-room.theme-light .demo-event:before { content:'○ '; color:#fff2bb; }
+    .demo-room.theme-dark .demo-event:before { content:'● '; color:#ff625b; }
+    .demo-room.theme-light .demo-event:before { content:'○ '; color:#d4cec1; }
   `;
   document.head.appendChild(style);
 
@@ -77,6 +78,8 @@
   let presence = false;
   let pulse = null;
   let raf = null;
+  let touchPointerId = null;
+  let lastTouchDistance = null;
 
   function load(key, file) {
     return new Promise((resolve, reject) => {
@@ -93,7 +96,7 @@
         resolve();
       };
       img.onerror = reject;
-      img.src = assetBase + file + '?v=20260820-led2';
+      img.src = assetBase + file + '?v=20260820-led3';
     });
   }
 
@@ -133,31 +136,46 @@
     octx.save();
     octx.globalAlpha=Math.min(1,amount);
     octx.shadowColor=colour;
-    octx.shadowBlur=28 + 34*amount;
+    octx.shadowBlur=32 + 40*amount;
     octx.drawImage(layer,bounds.x,bounds.y,bounds.width,bounds.height,0,0,overlay.width,overlay.height);
-    // Second pass makes the pipe itself visibly coloured, not just the halo.
-    octx.shadowBlur=7;
-    octx.globalAlpha=Math.min(1,amount*.95);
+    octx.shadowBlur=8;
+    octx.globalAlpha=Math.min(1,amount*.98);
     octx.drawImage(layer,bounds.x,bounds.y,bounds.width,bounds.height,0,0,overlay.width,overlay.height);
     octx.restore();
   }
 
+  function isDark(){ return document.body.classList.contains('site-dark'); }
+
   function render(now=performance.now()) {
     octx.clearRect(0,0,overlay.width,overlay.height);
-    if(presence) drawLed('ledRight','#64e879',0.72);
+
+    // Dark mode is represented by the centre red status LED staying on.
+    if(isDark()) drawLed('ledMid','#ff625b',0.86);
+
+    // Presence keeps the right green LED softly illuminated.
+    if(presence) drawLed('ledRight','#64e879',0.55);
+
     if(pulse){
-      const t=(now-pulse.start)/1000;
-      if(t>=1){ pulse=null; }
-      else {
-        const level=.25 + Math.sin(t*Math.PI)*.75;
-        drawLed(pulse.key,pulse.colour,level);
+      const elapsed=now-pulse.start;
+      const duration=pulse.duration;
+      if(elapsed>=duration){
+        pulse=null;
+      } else {
+        const t=elapsed/duration;
+        // Quick rise, long useful hold, then a gentle fade.
+        let level;
+        if(t<0.12) level=t/0.12;
+        else if(t<0.72) level=1;
+        else level=1-((t-0.72)/0.28);
+        drawLed(pulse.key,pulse.colour,Math.max(0,level));
       }
     }
+
     if(pulse) raf=requestAnimationFrame(render); else raf=null;
   }
 
-  function startPulse(key, colour){
-    pulse={key,colour,start:performance.now()};
+  function startPulse(key, colour, duration=1900){
+    pulse={key,colour,start:performance.now(),duration};
     if(!raf) raf=requestAnimationFrame(render);
   }
 
@@ -182,36 +200,106 @@
     return null;
   }
 
-  function setTheme(dark){
+  function setTheme(dark, source=''){
     document.body.classList.toggle('site-dark',dark);
     room.classList.toggle('theme-dark',dark);
     room.classList.toggle('theme-light',!dark);
-    if(eventLabel) eventLabel.textContent=dark?'Whole site · dark mode':'Whole site · light mode';
+
+    // The overhead lamp represents the website state: off in light mode,
+    // illuminated only when dark mode is active.
+    room.classList.toggle('is-light-on',dark);
+
+    if(eventLabel){
+      const prefix=source ? `${source} · ` : '';
+      eventLabel.textContent=prefix+(dark?'dark mode':'light mode');
+    }
+    render();
   }
 
-  // Start in the site's existing light theme.
+  function toggleThemeFrom(button){
+    const dark=!isDark();
+    setTheme(dark,button==='buttonUp'?'Button 1':'Button 2');
+    if(button==='buttonUp') startPulse('ledLeft','#64e879',2100);
+    else startPulse('ledRight','#64e879',2100);
+  }
+
+  // Start with the normal light site and the demo lamp OFF.
   setTheme(false);
 
+  // Capture the release before the original demo handler so both buttons use the
+  // site-wide theme behaviour consistently.
   deviceCanvas.addEventListener('pointerup', e => {
     const hit=hitButton(e);
-    if(hit==='buttonUp'){
-      setTheme(!document.body.classList.contains('site-dark'));
-      startPulse('ledLeft','#64e879');
-    } else if(hit==='buttonDown') {
-      startPulse('ledMid','#ff5d55');
+    if(hit==='buttonUp' || hit==='buttonDown'){
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      toggleThemeFrom(hit);
     }
   }, true);
 
-  room.addEventListener('pointermove', e => {
-    if(e.pointerType && e.pointerType!=='mouse') return;
+  function distanceFromDevice(clientX,clientY){
     const r=deviceCanvas.getBoundingClientRect();
-    const dx=e.clientX-(r.left+r.width/2);
-    const dy=e.clientY-(r.top+r.height*.58);
-    const threshold=window.innerWidth>980?220:150;
-    const next=Math.hypot(dx,dy)<=threshold;
-    if(next!==presence){ presence=next; render(); }
+    const centreX=r.left+r.width/2;
+    const centreY=r.top+r.height*.58;
+    return Math.hypot(clientX-centreX,clientY-centreY);
+  }
+
+  function applyPresenceFromPoint(clientX,clientY,pointerType){
+    const distance=distanceFromDevice(clientX,clientY);
+    const threshold=pointerType==='touch' ? Math.max(150,Math.min(230,window.innerWidth*.42)) : (window.innerWidth>980?220:150);
+    const next=distance<=threshold;
+
+    if(pointerType==='touch') lastTouchDistance=distance;
+    if(presenceText){
+      if(next) presenceText.textContent=`Presence detected · ${Math.round(distance)} px`;
+      else presenceText.textContent=`${Math.round(distance)} px away`;
+    }
+
+    if(next!==presence){
+      presence=next;
+      room.classList.toggle('has-presence',presence);
+      render();
+    }
+    return distance;
+  }
+
+  room.addEventListener('pointermove', e => {
+    if(e.pointerType==='mouse' || e.pointerType==='pen'){
+      applyPresenceFromPoint(e.clientX,e.clientY,e.pointerType);
+      return;
+    }
+    if(e.pointerType==='touch' && touchPointerId===e.pointerId){
+      applyPresenceFromPoint(e.clientX,e.clientY,'touch');
+    }
   });
-  room.addEventListener('pointerleave',()=>{ if(presence){presence=false;render();} });
+
+  // A phone cannot sense a hovering finger, but while the thumb is touching the
+  // demo we can continuously measure that contact point to the device in CSS px.
+  room.addEventListener('pointerdown', e => {
+    if(e.pointerType!=='touch') return;
+    touchPointerId=e.pointerId;
+    applyPresenceFromPoint(e.clientX,e.clientY,'touch');
+  });
+
+  function endTouch(e){
+    if(e.pointerType!=='touch' || touchPointerId!==e.pointerId) return;
+    touchPointerId=null;
+    if(presenceText && lastTouchDistance!==null){
+      presenceText.textContent=`Last touch · ${Math.round(lastTouchDistance)} px from Scoopy`;
+    }
+    presence=false;
+    room.classList.remove('has-presence');
+    render();
+  }
+  room.addEventListener('pointerup',endTouch);
+  room.addEventListener('pointercancel',endTouch);
+
+  room.addEventListener('pointerleave',e=>{
+    if(e.pointerType==='mouse' || e.pointerType==='pen'){
+      if(presence){ presence=false; room.classList.remove('has-presence'); render(); }
+      if(presenceText) presenceText.textContent='Move closer to detect presence';
+    }
+  });
 
   Promise.all(Object.entries(files).map(([k,f])=>load(k,f))).then(()=>{
     findBounds();
