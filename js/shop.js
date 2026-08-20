@@ -1,19 +1,18 @@
 const realPreviewStyles = document.createElement('link');
 realPreviewStyles.rel = 'stylesheet';
-realPreviewStyles.href = 'css/shop-real.css?v=20260820-1';
+realPreviewStyles.href = 'css/shop-real.css?v=20260820-2';
 document.head.appendChild(realPreviewStyles);
 
-document.querySelectorAll('.flavour-card .mini-device').forEach((placeholder, index) => {
+document.querySelectorAll('.flavour-card .mini-device').forEach(placeholder => {
   const preview = document.createElement('canvas');
   preview.className = 'flavour-preview';
-  preview.width = 220;
-  preview.height = 220;
+  preview.width = 260;
+  preview.height = 260;
   preview.setAttribute('aria-hidden', 'true');
   placeholder.replaceWith(preview);
 });
 
 const canvas = document.getElementById('scoopyCanvas');
-const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const selectedFlavour = document.getElementById('selectedFlavour');
 
 const state = {
@@ -88,8 +87,8 @@ function calculateContentBounds() {
     return { x: 0, y: 0, width: canvas.width, height: canvas.height };
   }
 
-  const extraX = (maxX - minX) * 0.08;
-  const extraY = (maxY - minY) * 0.08;
+  const extraX = (maxX - minX) * 0.04;
+  const extraY = (maxY - minY) * 0.04;
   const x = Math.max(0, minX - extraX);
   const y = Math.max(0, minY - extraY);
   const right = Math.min(canvas.width, maxX + extraX);
@@ -138,7 +137,7 @@ function tintLayer(key, colour) {
   return layerCanvas;
 }
 
-function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.06) {
+function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.12) {
   const bounds = contentBounds;
   const availableWidth = targetWidth * (1 - padding * 2);
   const availableHeight = targetHeight * (1 - padding * 2);
@@ -155,22 +154,25 @@ function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.06)
   );
 }
 
-function renderComposite(targetCanvas, colours, padding = 0.06) {
+function renderComposite(targetCanvas, colours, padding = 0.12) {
   if (!contentBounds) return;
   const targetCtx = targetCanvas.getContext('2d');
   targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
 
+  // Bottom to top: base, PCB, buttons, lid, then light pipes.
+  // Drawing the buttons before the lid means only the actuator tops show through
+  // the lid holes; the locating tabs stay hidden inside the enclosure.
   drawFitted(targetCtx, tintLayer('base', colours.base), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, images.pcb, targetCanvas.width, targetCanvas.height, padding);
-  drawFitted(targetCtx, tintLayer('lid', colours.lid), targetCanvas.width, targetCanvas.height, padding);
-  drawFitted(targetCtx, images.lightPipes, targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('button1', colours.button1), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('button2', colours.button2), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('lid', colours.lid), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, images.lightPipes, targetCanvas.width, targetCanvas.height, padding);
 }
 
 function renderScoopy() {
   if (!contentBounds) return;
-  renderComposite(canvas, state, 0.035);
+  renderComposite(canvas, state, 0.11);
 }
 
 function renderFlavourPreviews() {
@@ -182,7 +184,7 @@ function renderFlavourPreviews() {
       base: card.dataset.base,
       button1: card.dataset.button1,
       button2: card.dataset.button2
-    }, 0.04);
+    }, 0.10);
   });
 }
 
