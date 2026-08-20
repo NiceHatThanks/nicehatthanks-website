@@ -1,3 +1,17 @@
+const realPreviewStyles = document.createElement('link');
+realPreviewStyles.rel = 'stylesheet';
+realPreviewStyles.href = 'css/shop-real.css?v=20260820-1';
+document.head.appendChild(realPreviewStyles);
+
+document.querySelectorAll('.flavour-card .mini-device').forEach((placeholder, index) => {
+  const preview = document.createElement('canvas');
+  preview.className = 'flavour-preview';
+  preview.width = 220;
+  preview.height = 220;
+  preview.setAttribute('aria-hidden', 'true');
+  placeholder.replaceWith(preview);
+});
+
 const canvas = document.getElementById('scoopyCanvas');
 const ctx = canvas.getContext('2d', { willReadFrequently: true });
 const selectedFlavour = document.getElementById('selectedFlavour');
