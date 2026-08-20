@@ -159,14 +159,13 @@ function renderComposite(targetCanvas, colours, padding = 0.18) {
   const targetCtx = targetCanvas.getContext('2d');
   targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
 
-  // Back to front: PCB, buttons, base, lid, light pipes.
-  // This matches the real assembly stack so the base and lid naturally hide
-  // the internal parts, leaving only the button tops visible through the lid.
+  // The button PNGs now contain only the caps visible above the lid,
+  // so they belong in front of the lid rather than behind it.
   drawFitted(targetCtx, images.pcb, targetCanvas.width, targetCanvas.height, padding);
-  drawFitted(targetCtx, tintLayer('button1', colours.button1), targetCanvas.width, targetCanvas.height, padding);
-  drawFitted(targetCtx, tintLayer('button2', colours.button2), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('base', colours.base), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('lid', colours.lid), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('button1', colours.button1), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('button2', colours.button2), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, images.lightPipes, targetCanvas.width, targetCanvas.height, padding);
 }
 
