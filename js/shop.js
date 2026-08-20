@@ -1,6 +1,6 @@
 const realPreviewStyles = document.createElement('link');
 realPreviewStyles.rel = 'stylesheet';
-realPreviewStyles.href = 'css/shop-real.css?v=20260820-radar-bgkey';
+realPreviewStyles.href = 'css/shop-real.css?v=20260820-radar-alpha';
 document.head.appendChild(realPreviewStyles);
 
 document.querySelectorAll('.flavour-card .mini-device').forEach(placeholder => {
@@ -19,7 +19,7 @@ const variants = {
   compact:{price:'£12.49',dimensions:'32 × 32 × 16 mm',description:'The tiny two-button room node.'},
   presence:{price:'£15.99',dimensions:'32 × 44 × 16 mm',description:'The same controls, with mmWave room presence built in.'}
 };
-let selectedVariant='compact';
+let selectedVariant='presence';
 
 const layerPaths={
   compact:{base:'images/seperate/base.png',pcb:'images/seperate/pcb.png',lid:'images/seperate/lid-noLightPipes.PNG',lightPipes:'images/seperate/lightPipes.png',button1:'images/seperate/button1.png',button2:'images/seperate/button2.png'},
@@ -30,53 +30,6 @@ const tintCache=new Map();
 
 function hexToRgb(hex){const v=hex.replace('#','');return{r:parseInt(v.slice(0,2),16),g:parseInt(v.slice(2,4),16),b:parseInt(v.slice(4,6),16)}}
 
-function hasUsefulTransparency(imageData){
-  const data=imageData.data;
-  let transparent=0;
-  const step=40;
-  let sampled=0;
-  for(let i=3;i<data.length;i+=step*4){sampled++;if(data[i]<245)transparent++;}
-  return sampled>0 && transparent/sampled>0.01;
-}
-
-function estimateCornerBackground(imageData){
-  const {width,height,data}=imageData;
-  const size=Math.max(8,Math.floor(Math.min(width,height)*0.025));
-  const corners=[[0,0],[width-size,0],[0,height-size],[width-size,height-size]];
-  let r=0,g=0,b=0,count=0;
-  corners.forEach(([sx,sy])=>{
-    for(let y=sy;y<sy+size;y+=2){
-      for(let x=sx;x<sx+size;x+=2){
-        const i=(y*width+x)*4;
-        r+=data[i];g+=data[i+1];b+=data[i+2];count++;
-      }
-    }
-  });
-  return{r:r/count,g:g/count,b:b/count};
-}
-
-function removeOpaqueRenderBackground(imageData){
-  if(hasUsefulTransparency(imageData)) return imageData;
-
-  const bg=estimateCornerBackground(imageData);
-  const data=imageData.data;
-  const clearDistance=14;
-  const solidDistance=52;
-
-  for(let i=0;i<data.length;i+=4){
-    const dr=data[i]-bg.r,dg=data[i+1]-bg.g,db=data[i+2]-bg.b;
-    const distance=Math.sqrt(dr*dr+dg*dg+db*db);
-    if(distance<=clearDistance){
-      data[i+3]=0;
-    }else if(distance<solidDistance){
-      data[i+3]=Math.round(255*(distance-clearDistance)/(solidDistance-clearDistance));
-    }else{
-      data[i+3]=255;
-    }
-  }
-  return imageData;
-}
-
 function loadImage(variant,key,src){
   return new Promise((resolve,reject)=>{
     const image=new Image();
@@ -86,14 +39,7 @@ function loadImage(variant,key,src){
       const ctx=off.getContext('2d',{willReadFrequently:true});
       ctx.clearRect(0,0,off.width,off.height);
       ctx.drawImage(image,0,0,off.width,off.height);
-      let source=ctx.getImageData(0,0,off.width,off.height);
-
-      if(variant==='presence'){
-        source=removeOpaqueRenderBackground(source);
-        ctx.clearRect(0,0,off.width,off.height);
-        ctx.putImageData(source,0,0);
-      }
-
+      const source=ctx.getImageData(0,0,off.width,off.height);
       layerSets[variant].images[key]=off;
       layerSets[variant].sourceData[key]=source;
       resolve();
@@ -167,18 +113,20 @@ document.querySelectorAll('.flavour-card').forEach(card=>card.addEventListener('
 function addVariantPicker(){
   const priceRow=document.querySelector('.price-row');if(!priceRow)return;
   const picker=document.createElement('section');picker.className='variant-picker';picker.setAttribute('aria-label','Choose Scoopy hardware');
-  picker.innerHTML=`<div class="variant-heading"><h2>Choose your Scoopy</h2><span>Two sizes</span></div><div class="variant-grid"><button type="button" class="variant-card is-selected" data-variant="compact"><span><strong>Node</strong><small>32 × 32 × 16 mm</small></span><b>£12.49</b></button><button type="button" class="variant-card" data-variant="presence"><span><strong>Node + Presence</strong><small>32 × 44 × 16 mm · mmWave</small></span><b>£15.99</b></button></div><p class="variant-description">${variants.compact.description}</p>`;
+  picker.innerHTML=`<div class="variant-heading"><h2>Choose your Scoopy</h2><span>Two sizes</span></div><div class="variant-grid"><button type="button" class="variant-card" data-variant="compact"><span><strong>Node</strong><small>32 × 32 × 16 mm</small></span><b>£12.49</b></button><button type="button" class="variant-card is-selected" data-variant="presence"><span><strong>Node + Presence</strong><small>32 × 44 × 16 mm · mmWave</small></span><b>£15.99</b></button></div><p class="variant-description">${variants.presence.description}</p>`;
   priceRow.insertAdjacentElement('afterend',picker);
   const summaryDimension=document.querySelector('.buy-summary > div span:first-child'),price=document.querySelector('.shop-price');
-  picker.querySelectorAll('.variant-card').forEach(button=>button.addEventListener('click',()=>{
-    selectedVariant=button.dataset.variant;
+  const applyVariant=variantName=>{
+    selectedVariant=variantName;
     const variant=variants[selectedVariant];
-    picker.querySelectorAll('.variant-card').forEach(item=>item.classList.toggle('is-selected',item===button));
+    picker.querySelectorAll('.variant-card').forEach(item=>item.classList.toggle('is-selected',item.dataset.variant===selectedVariant));
     price.textContent=variant.price;
     if(summaryDimension)summaryDimension.textContent=variant.dimensions;
     picker.querySelector('.variant-description').textContent=variant.description;
     renderScoopy();renderFlavourPreviews();
-  }));
+  };
+  picker.querySelectorAll('.variant-card').forEach(button=>button.addEventListener('click',()=>applyVariant(button.dataset.variant)));
+  applyVariant('presence');
 }
 
 addVariantPicker();
