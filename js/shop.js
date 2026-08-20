@@ -114,11 +114,18 @@ function randomiseColours(){
 function addRandomiser(){
   const customBlock=document.querySelector('.custom-block');if(!customBlock)return;
   const button=document.createElement('button');
-  button.type='button';button.className='button secondary randomise-button';button.textContent='🎲 Randomise colours';
+  button.type='button';
+  button.className='randomise-button';
+  button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h3c4 0 5 10 10 10h3M17 4l3 3-3 3M4 17h3c1.6 0 2.8-1.5 4-3.3M16 7h4M17 14l3 3-3 3"/></svg><span>Randomise colours</span>';
   button.addEventListener('click',randomiseColours);
   customBlock.appendChild(button);
   const style=document.createElement('style');
-  style.textContent=`.randomise-button{width:100%;margin-top:18px;justify-content:center}@media(max-width:700px){.randomise-button{min-height:48px;font-size:1rem}}`;
+  style.textContent=`
+    .randomise-button{width:100%;min-height:52px;display:flex;align-items:center;justify-content:center;gap:10px;margin-top:18px;padding:0 20px;border:2px solid #20251f;border-radius:999px;background:#fff;color:#20251f;font:inherit;font-weight:800;cursor:pointer;transition:transform 150ms ease,background 150ms ease}
+    .randomise-button:hover{transform:translateY(-1px);background:#f8f8f5}
+    .randomise-button svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+    @media(max-width:700px){.randomise-button{min-height:50px;font-size:1rem}}
+  `;
   document.head.appendChild(style);
 }
 
