@@ -137,7 +137,7 @@ function tintLayer(key, colour) {
   return layerCanvas;
 }
 
-function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.12) {
+function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.18) {
   const bounds = contentBounds;
   const availableWidth = targetWidth * (1 - padding * 2);
   const availableHeight = targetHeight * (1 - padding * 2);
@@ -154,25 +154,25 @@ function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.12)
   );
 }
 
-function renderComposite(targetCanvas, colours, padding = 0.12) {
+function renderComposite(targetCanvas, colours, padding = 0.18) {
   if (!contentBounds) return;
   const targetCtx = targetCanvas.getContext('2d');
   targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
 
-  // Bottom to top: base, PCB, buttons, lid, then light pipes.
-  // Drawing the buttons before the lid means only the actuator tops show through
-  // the lid holes; the locating tabs stay hidden inside the enclosure.
-  drawFitted(targetCtx, tintLayer('base', colours.base), targetCanvas.width, targetCanvas.height, padding);
+  // Back to front: PCB, buttons, base, lid, light pipes.
+  // This matches the real assembly stack so the base and lid naturally hide
+  // the internal parts, leaving only the button tops visible through the lid.
   drawFitted(targetCtx, images.pcb, targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('button1', colours.button1), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('button2', colours.button2), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('base', colours.base), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, tintLayer('lid', colours.lid), targetCanvas.width, targetCanvas.height, padding);
   drawFitted(targetCtx, images.lightPipes, targetCanvas.width, targetCanvas.height, padding);
 }
 
 function renderScoopy() {
   if (!contentBounds) return;
-  renderComposite(canvas, state, 0.11);
+  renderComposite(canvas, state, 0.18);
 }
 
 function renderFlavourPreviews() {
@@ -184,7 +184,7 @@ function renderFlavourPreviews() {
       base: card.dataset.base,
       button1: card.dataset.button1,
       button2: card.dataset.button2
-    }, 0.10);
+    }, 0.16);
   });
 }
 
