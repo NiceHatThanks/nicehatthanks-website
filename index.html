@@ -1,18 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Nice Hat Thanks makes tiny, thoughtful smart-home hardware for Home Assistant."><title>Nice Hat Thanks</title><link rel="stylesheet" href="css/style.css?v=20260820-radar"><style>.hero-product img{transform:scale(1.28)}.inside-image img{transform:scale(1.16)}</style><script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Nice Hat Thanks makes tiny, thoughtful smart-home hardware for Home Assistant.">
+  <title>Nice Hat Thanks</title>
+  <link rel="stylesheet" href="css/style.css?v=20260820-home-refresh">
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/4.0.0/model-viewer.min.js"></script>
+  <style>
+    .hero{grid-template-columns:minmax(0,1fr) minmax(420px,.92fr)}
+    .hero-showcase{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-self:center;justify-self:end;width:min(620px,100%)}
+    .hero-variant{display:block;overflow:hidden;border-radius:24px;background:#1c211b;color:#f5f0e6;text-decoration:none;transition:transform .16s ease}
+    .hero-variant:hover{transform:translateY(-3px)}
+    .hero-variant-image{aspect-ratio:1/1;overflow:hidden}
+    .hero-variant-image img{width:100%;height:100%;object-fit:cover;transform:scale(1.36)}
+    .hero-variant.presence .hero-variant-image img{transform:scale(1.32)}
+    .hero-variant-copy{display:flex;flex-direction:column;gap:4px;padding:14px 16px 16px}
+    .hero-variant-copy strong{font-size:.94rem}
+    .hero-variant-copy span{color:rgba(245,240,230,.62);font-size:.75rem}
+    .hero-variant-copy em{margin-top:5px;color:rgba(245,240,230,.78);font-size:.72rem;font-style:normal;font-weight:700}
+
+    .dimension-callout{gap:10px;align-items:center}
+    .dimension-callout span{font-size:1rem;font-weight:650;letter-spacing:-.015em;color:var(--text)}
+    .dimension-callout .dimension-separator{color:var(--muted);font-weight:500}
+
+    .variant-overview{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:34px}
+    .variant-overview a{display:flex;justify-content:space-between;gap:16px;padding:18px 20px;border:1px solid var(--border);border-radius:20px;text-decoration:none;background:rgba(255,255,255,.16)}
+    .variant-overview strong{display:block;margin-bottom:4px}.variant-overview span{color:var(--muted);font-size:.82rem}
+
+    .product-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .product-grid article{overflow:hidden;padding:0}
+    .feature-visual{position:relative;height:145px;overflow:hidden;background:#1c211b}
+    .feature-visual img{width:100%;height:100%;object-fit:cover;transform:scale(1.58)}
+    .feature-visual.presence img{transform:scale(1.48)}
+    .feature-copy{padding:24px 26px 27px}
+    .feature-mark{position:absolute;width:18px;height:18px;border:2px solid #f5f0e6;border-radius:50%;box-shadow:0 0 0 5px rgba(245,240,230,.16)}
+    .feature-buttons .mark-one{left:43%;top:47%}.feature-buttons .mark-two{left:57%;top:54%}
+    .feature-leds .feature-mark{width:12px;height:12px;border:none;box-shadow:0 0 0 4px rgba(245,240,230,.12)}
+    .feature-leds .mark-one{left:43%;top:44%;background:#4fa85d}.feature-leds .mark-two{left:50%;top:48%;background:#c94c4c}.feature-leds .mark-three{left:57%;top:52%;background:#4fa85d}
+    .presence-rings{position:absolute;right:20%;top:21%;width:70px;height:70px;border:2px solid rgba(245,240,230,.72);border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(10deg)}
+    .presence-rings:before,.presence-rings:after{content:"";position:absolute;border:2px solid rgba(245,240,230,.48);border-left-color:transparent;border-bottom-color:transparent;border-radius:50%}
+    .presence-rings:before{inset:11px}.presence-rings:after{inset:23px}
+    .local-visual{height:145px;display:grid;place-items:center;background:#1c211b}
+    .local-visual svg{width:58px;height:58px;stroke:#f5f0e6}
+
+    .use-icon{width:34px;height:34px;display:grid;place-items:center;margin-bottom:14px}
+    .use-icon svg{width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+    .uses-grid h3{margin-top:18px}
+    .use-status h3{margin-top:18px}
+    .led-demo{margin-top:3px}
+    .led-demo i:nth-child(1),.led-demo i:nth-child(3){background:#4fa85d}
+    .led-demo i:nth-child(2){background:#c94c4c}
+
+    .inside-gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch}
+    .inside-gallery a{display:block;overflow:hidden;border-radius:22px;background:#1c211b}
+    .inside-gallery img{width:100%;aspect-ratio:1/1;object-fit:cover;transform:scale(1.32);transition:transform .18s ease}
+    .inside-gallery a:hover img{transform:scale(1.37)}
+
+    .firmware-card{position:relative;overflow:hidden}
+    .ha-mark{width:92px;height:92px;display:grid;place-items:center;margin:2px 0 26px;border-radius:22px;background:#41bdf5}
+    .ha-mark svg{width:58px;height:58px;fill:none;stroke:white;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .pcb-preview model-viewer{transform:scale(1.18)}
+
+    @media(max-width:980px){
+      .hero{grid-template-columns:1fr}.hero-showcase{justify-self:center;width:min(660px,100%)}
+      .product-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    }
+    @media(max-width:640px){
+      .hero-showcase{gap:9px}.hero-variant{border-radius:18px}.hero-variant-copy{padding:10px 11px 12px}.hero-variant-copy strong{font-size:.78rem}.hero-variant-copy span,.hero-variant-copy em{font-size:.66rem}
+      .hero-variant-image img{transform:scale(1.34)}.hero-variant.presence .hero-variant-image img{transform:scale(1.3)}
+      .dimension-callout{flex-direction:column;align-items:flex-start}.dimension-separator{display:none}
+      .variant-overview{grid-template-columns:1fr}
+      .product-grid{grid-template-columns:1fr}.feature-visual{height:175px}
+      .inside-gallery{gap:8px}.inside-gallery img{transform:scale(1.28)}
+    }
+  </style>
 </head>
 <body>
 <header class="site-header"><a class="brand" href="/" aria-label="Nice Hat Thanks home">Nice Hat Thanks</a><nav aria-label="Main navigation"><a href="#product">Product</a><a href="#uses">Uses</a><a href="#inside">Inside</a><a href="#build">Build it</a><a href="/shop.html">Shop</a><a href="https://github.com/NiceHatThanks" target="_blank" rel="noreferrer">GitHub</a></nav></header>
 <main>
-<section class="hero"><div class="hero-copy"><p class="eyebrow">SMALL HARDWARE. THOUGHTFULLY MADE.</p><h1>Smart-home hardware that quietly gets on with it.</h1><p class="intro">Compact, local-first devices designed for Home Assistant. Simple enough to use every day, open enough to make your own.</p><div class="actions"><a class="button primary" href="/shop.html">Choose your Scoopy</a><a class="button secondary" href="#product">Meet the first node</a></div></div><div class="hero-product"><img src="images/radar-node-assembled.png" alt="Scoopy Node + Presence in a pink and cream enclosure"></div></section>
-<section class="product-panel" id="product"><div class="section-copy"><p class="eyebrow">THE FIRST NODE</p><h2>Small enough to disappear. Useful enough to put everywhere.</h2><div class="dimension-callout" aria-label="Device dimensions"><span class="dimension-value">32 × 32 × 16 mm</span><span class="dimension-label">compact node · or 32 × 44 × 16 mm with mmWave presence</span></div></div><div class="product-grid"><article><h3>Physical controls</h3><p>Two tactile buttons give scenes, lights, fans and automations a proper place in the room.</p></article><article><h3>Three status LEDs</h3><p>See useful information at a glance, or leave a subtle glow so Scoopy is easy to find in the dark.</p></article><article><h3>Optional presence</h3><p>Choose the 44 mm Presence enclosure to add mmWave sensing for room-aware automations that can detect still occupancy, not just motion.</p></article><article><h3>Local by design</h3><p>Built around ESPHome and Home Assistant, with no cloud account required to make it useful.</p></article></div></section>
-<section class="uses-section" id="uses"><div class="uses-heading"><p class="eyebrow">ONE LITTLE NODE. LOTS OF JOBS.</p><h2>Give your smart home a physical button.</h2><p>Scoopy turns the things buried in dashboards and apps into something anyone in the room can just press — while its LEDs can quietly tell you what your home is doing.</p></div><div class="uses-grid"><article><span class="use-number">01</span><h3>Turn on the lights</h3><p>Tap for the room lights, hold for full brightness, or trigger a favourite scene.</p></article><article><span class="use-number">02</span><h3>Control the fan</h3><p>Put a simple physical control next to your desk or bed instead of reaching for your phone.</p></article><article><span class="use-number">03</span><h3>Close the blinds</h3><p>One press can close the blinds, draw the curtains or run a whole evening routine.</p></article><article class="use-status"><span class="use-number">04</span><div class="led-demo" aria-hidden="true"><i></i><i></i><i></i></div><h3>Is the front door locked?</h3><p>Use an LED as a glanceable status light for a lock, alarm, garage door or anything else Home Assistant knows about.</p></article><article><span class="use-number">05</span><h3>Find it in the dark</h3><p>Keep one LED gently lit as a locator, then dim it or switch it off automatically when you sleep.</p></article><article><span class="use-number">06</span><h3>Know when the room is occupied</h3><p>With the Presence version, mmWave can keep lights, heating or other automations active even while you are sitting still.</p></article></div></section>
-<section class="inside-section" id="inside"><div class="inside-copy"><p class="eyebrow">DESIGNED FROM THE INSIDE OUT</p><h2>Everything it needs. Nothing it doesn’t.</h2><p>A purpose-built board, USB-C power and a simple enclosure designed around the hardware rather than hidden from it. The Presence version extends the same low-profile design to make room for mmWave sensing.</p><div class="inside-points"><span>ESP32-C3</span><span>USB-C</span><span>ESPHome</span><span>mmWave option</span><span>Open hardware</span></div></div><div class="inside-image"><img src="images/radar-node-exploded.png" alt="Exploded view of Scoopy Node + Presence showing the enclosure, PCB and radar hardware"></div></section>
+<section class="hero">
+  <div class="hero-copy"><p class="eyebrow">SMALL HARDWARE. THOUGHTFULLY MADE.</p><h1>Powerful smart-home control, designed to disappear.</h1><p class="intro">Compact, local-first devices designed for Home Assistant. Subtle in the room, powerful when you need them, and open enough to make your own.</p><div class="actions"><a class="button primary" href="/shop.html">Choose your Scoopy</a><a class="button secondary" href="#product">Meet the first node</a></div></div>
+  <div class="hero-showcase">
+    <a class="hero-variant" href="#compact-node"><div class="hero-variant-image"><img src="images/node-assembled.png" alt="Compact Scoopy Node"></div><div class="hero-variant-copy"><strong>Scoopy Node</strong><span>32 × 32 × 16 mm</span><em>See the compact node ↓</em></div></a>
+    <a class="hero-variant presence" href="#presence-node"><div class="hero-variant-image"><img src="images/radar-node-assembled.png" alt="Scoopy Node with mmWave presence"></div><div class="hero-variant-copy"><strong>Scoopy Node + Presence</strong><span>32 × 44 × 16 mm · mmWave</span><em>See Presence ↓</em></div></a>
+  </div>
+</section>
+
+<section class="product-panel" id="product">
+  <div class="section-copy"><p class="eyebrow">THE FIRST NODE</p><h2>Small enough to disappear. Useful enough to put everywhere.</h2><div class="dimension-callout" aria-label="Device dimensions"><span>32 × 32 × 16 mm compact</span><span class="dimension-separator">or</span><span>32 × 44 × 16 mm with mmWave presence</span></div></div>
+  <div class="variant-overview"><a id="compact-node" href="#features"><div><strong>Scoopy Node</strong><span>The smallest version for buttons, LEDs and room control.</span></div><span>32 mm →</span></a><a id="presence-node" href="#features"><div><strong>Scoopy Node + Presence</strong><span>Adds mmWave sensing while staying only 16 mm tall.</span></div><span>44 mm →</span></a></div>
+  <div class="product-grid" id="features">
+    <article><div class="feature-visual feature-buttons"><img src="images/node-assembled.png" alt="Scoopy buttons highlighted"><i class="feature-mark mark-one"></i><i class="feature-mark mark-two"></i></div><div class="feature-copy"><h3>Physical controls</h3><p>Two tactile buttons give scenes, lights, fans and automations a proper place in the room.</p></div></article>
+    <article><div class="feature-visual feature-leds"><img src="images/node-assembled.png" alt="Scoopy status LEDs highlighted"><i class="feature-mark mark-one"></i><i class="feature-mark mark-two"></i><i class="feature-mark mark-three"></i></div><div class="feature-copy"><h3>Three status LEDs</h3><p>Two green LEDs and a red centre LED can show useful states at a glance, or act as subtle locator lights.</p></div></article>
+    <article><div class="feature-visual presence"><img src="images/radar-node-assembled.png" alt="Scoopy Node with presence sensing"><span class="presence-rings" aria-hidden="true"></span></div><div class="feature-copy"><h3>Optional presence</h3><p>The 44 mm version adds mmWave sensing for room-aware automations, including detecting someone who is sitting still.</p></div></article>
+    <article><div class="local-visual" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M13 29 32 13l19 16v22H13Z"/><path d="M24 51V35h16v16"/><path d="M20 27c3-3 7-5 12-5s9 2 12 5"/><path d="M24 31c2-2 5-3 8-3s6 1 8 3"/></svg></div><div class="feature-copy"><h3>Local by design</h3><p>Built around ESPHome and Home Assistant, with no cloud account required to make it useful.</p></div></article>
+  </div>
+</section>
+
+<section class="uses-section" id="uses"><div class="uses-heading"><p class="eyebrow">ONE LITTLE NODE. LOTS OF JOBS.</p><h2>Give your smart home a physical button.</h2><p>Scoopy turns the things buried in dashboards and apps into something anyone in the room can just press — while its LEDs can quietly tell you what your home is doing.</p></div><div class="uses-grid">
+  <article><span class="use-number">01</span><div class="use-icon"><svg viewBox="0 0 32 32"><path d="M11 22h10M12 26h8M10 18c-2-2-3-4-3-7a9 9 0 0 1 18 0c0 3-1 5-3 7-2 2-2 3-2 4h-8c0-1 0-2-2-4Z"/></svg></div><h3>Turn on the lights</h3><p>Tap for the room lights, hold for full brightness, or trigger a favourite scene.</p></article>
+  <article><span class="use-number">02</span><div class="use-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="16" r="3"/><path d="M16 13c-1-6 1-9 5-9 3 0 4 3 2 6-1 2-4 3-7 3ZM19 16c6-1 9 1 9 5 0 3-3 4-6 2-2-1-3-4-3-7ZM16 19c1 6-1 9-5 9-3 0-4-3-2-6 1-2 4-3 7-3ZM13 16c-6 1-9-1-9-5 0-3 3-4 6-2 2 1 3 4 3 7Z"/></svg></div><h3>Control the fan</h3><p>Put a simple physical control next to your desk or bed instead of reaching for your phone.</p></article>
+  <article><span class="use-number">03</span><div class="use-icon"><svg viewBox="0 0 32 32"><path d="M6 6h20M8 9h16v15H8Z"/><path d="M12 9v15M16 9v15M20 9v15M6 27h20"/></svg></div><h3>Close the blinds</h3><p>One press can close the blinds, draw the curtains or run a whole evening routine.</p></article>
+  <article class="use-status"><span class="use-number">04</span><div class="use-icon"><svg viewBox="0 0 32 32"><rect x="8" y="14" width="16" height="12" rx="2"/><path d="M11 14V9a5 5 0 0 1 10 0v5M16 19v3"/></svg></div><div class="led-demo" aria-hidden="true"><i></i><i></i><i></i></div><h3>Is the front door locked?</h3><p>Use an LED as a glanceable status light for a lock, alarm, garage door or anything else Home Assistant knows about.</p></article>
+  <article><span class="use-number">05</span><div class="use-icon"><svg viewBox="0 0 32 32"><path d="M20 5a11 11 0 1 0 7 18A12 12 0 0 1 20 5Z"/><path d="M8 24h5"/></svg></div><h3>Find it in the dark</h3><p>Keep one LED gently lit as a locator, then dim it or switch it off automatically when you sleep.</p></article>
+  <article><span class="use-number">06</span><div class="use-icon"><svg viewBox="0 0 32 32"><circle cx="16" cy="12" r="4"/><path d="M9 26c1-6 3-9 7-9s6 3 7 9M5 11c2-4 5-7 9-8M27 11c-2-4-5-7-9-8"/></svg></div><h3>Know when the room is occupied</h3><p>With the Presence version, mmWave can keep lights, heating or other automations active even while you are sitting still.</p></article>
+</div></section>
+
+<section class="inside-section" id="inside"><div class="inside-copy"><p class="eyebrow">DESIGNED FROM THE INSIDE OUT</p><h2>Purpose-built for the room.</h2><p>A compact ESP32-C3 board, USB-C power, tactile controls and an enclosure designed around the hardware. The Presence version simply extends the same low-profile design to make room for mmWave sensing.</p><div class="inside-points"><span>ESP32-C3</span><span>USB-C</span><span>ESPHome</span><span>mmWave option</span><span>Open hardware</span></div></div><div class="inside-gallery"><a href="#build" aria-label="See how the compact Scoopy is built"><img src="images/node-exploded.PNG" alt="Exploded compact Scoopy Node"></a><a href="#build" aria-label="See how Scoopy Presence is built"><img src="images/radar-node-exploded.png" alt="Exploded Scoopy Node with mmWave presence"></a></div></section>
+
 <section class="build-section" id="build"><div class="build-heading"><p class="eyebrow">OPEN BY DESIGN</p><h2>Buy one. Build one. Change it.</h2><p>The design files are being published so you can see what is inside, source the parts yourself, print the enclosure and make it your own.</p></div><div class="resource-grid">
 <div class="resource-card electronics-card"><span class="resource-kicker">ELECTRONICS</span><div class="pcb-preview"><model-viewer src="images/homeAssistantNodeV1.glb" alt="Interactive 3D model of the Scoopy Node PCB" camera-controls auto-rotate rotation-per-second="12deg" interaction-prompt="none" shadow-intensity="0.7" exposure="1" loading="lazy"></model-viewer><span class="model-hint">Drag to rotate</span></div><h3>PCB + component BOM</h3><p>KiCad source, Gerbers, schematics and the component bill of materials.</p><a class="resource-link" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">View on GitHub →</a></div>
-<a class="resource-card" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer"><span class="resource-kicker">FIRMWARE</span><h3>ESPHome configuration</h3><p>Readable, editable firmware for Home Assistant with sensible defaults.</p><span class="resource-link">View on GitHub →</span></a>
+<a class="resource-card firmware-card" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer"><span class="resource-kicker">FIRMWARE</span><div class="ha-mark" aria-hidden="true"><svg viewBox="0 0 64 64"><path d="M14 31 32 14l18 17v20H14Z"/><path d="M24 51V37h16v14"/><circle cx="24" cy="29" r="2"/><circle cx="32" cy="25" r="2"/><circle cx="40" cy="29" r="2"/><path d="M24 29h16M32 25v12"/></svg></div><h3>ESPHome configuration</h3><p>Readable, editable firmware for Home Assistant with sensible defaults.</p><span class="resource-link">View on GitHub →</span></a>
 <div class="resource-card electronics-card"><span class="resource-kicker">ENCLOSURE</span><div class="pcb-preview"><model-viewer src="images/homeAssistantNodeCase.glb" alt="Interactive 3D model of the Scoopy Node enclosure" camera-controls auto-rotate rotation-per-second="12deg" interaction-prompt="none" shadow-intensity="0.7" exposure="1" loading="lazy"></model-viewer><span class="model-hint">Drag to rotate</span></div><h3>3D printed parts</h3><p>Print-ready enclosure parts, with STEP and Fusion source files for remixing.</p><span class="resource-link">MakerWorld · coming soon</span></div></div><div class="actions"><a class="button primary" href="/shop.html">CBA to DIY? Buy one →</a></div></section>
 <section class="principles" id="principles"><div><p class="eyebrow">WHY NICE HAT THANKS</p><h2>Less gadget. More infrastructure.</h2></div><div class="principles-copy"><p>The goal is simple: smart-home hardware should feel dependable, unobtrusive and easy to understand.</p><p>That means small enclosures, local control, sensible defaults, open documentation and hardware you can actually adapt.</p></div></section><section class="closing-card"><p class="eyebrow">IN DEVELOPMENT</p><h2>The first batch is on its way.</h2><p>Hardware, firmware and documentation are being developed in the open. More details soon.</p><div class="actions"><a class="button primary" href="/shop.html">Choose your Scoopy</a><a class="text-link" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Follow the project on GitHub →</a></div></section>
-</main><footer><span>Nice Hat Thanks</span><span>Made in the UK · Built for Home Assistant</span></footer><script src="js/main.js?v=20260820-both"></script></body></html>
+</main><footer><span>Nice Hat Thanks</span><span>Made in the UK · Built for Home Assistant</span></footer><script src="js/main.js?v=20260820-clean-home"></script></body></html>
