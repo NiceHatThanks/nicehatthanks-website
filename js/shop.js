@@ -1,6 +1,6 @@
 const realPreviewStyles = document.createElement('link');
 realPreviewStyles.rel = 'stylesheet';
-realPreviewStyles.href = 'css/shop-real.css?v=20260820-preview-zoom';
+realPreviewStyles.href = 'css/shop-real.css?v=20260820-preview-responsive';
 document.head.appendChild(realPreviewStyles);
 
 document.querySelectorAll('.flavour-card .mini-device').forEach(placeholder => {
@@ -49,7 +49,7 @@ function calculateVariantBounds(sourceData){
   });
   if(maxX<minX||maxY<minY)return{x:0,y:0,width:canvas.width,height:canvas.height};
   const width=maxX-minX+1,height=maxY-minY+1;
-  const marginX=width*.035,marginY=height*.035;
+  const marginX=width*.06,marginY=height*.06;
   const x=Math.max(0,minX-marginX),y=Math.max(0,minY-marginY);
   const right=Math.min(canvas.width,maxX+marginX),bottom=Math.min(canvas.height,maxY+marginY);
   return{x,y,width:right-x,height:bottom-y};
@@ -76,7 +76,13 @@ function renderComposite(targetCanvas,colours,variant=selectedVariant,padding=.0
   drawLayer(ctx,set.images.lightPipes,set.bounds,targetCanvas.width,targetCanvas.height,padding);
 }
 
-function renderScoopy(){renderComposite(canvas,state,selectedVariant,.035)}
+function mainPreviewPadding(){
+  if(window.innerWidth>980)return .14;
+  if(window.innerWidth>640)return .065;
+  return .035;
+}
+
+function renderScoopy(){renderComposite(canvas,state,selectedVariant,mainPreviewPadding())}
 function renderFlavourPreviews(){document.querySelectorAll('.flavour-card').forEach(card=>{const preview=card.querySelector('.flavour-preview');if(preview)renderComposite(preview,{lid:card.dataset.lid,base:card.dataset.base,button1:card.dataset.button1,button2:card.dataset.button2},selectedVariant,.08)})}
 function applyState(){renderScoopy()}
 function selectSwatch(part,colour,name,button){state[part]=colour;const row=button.closest('.swatch-row');row.querySelectorAll('.swatch').forEach(s=>s.classList.remove('is-selected'));button.classList.add('is-selected');const label=document.getElementById(`${part}Name`);if(label)label.textContent=name;document.querySelectorAll('.flavour-card').forEach(c=>c.classList.remove('is-selected'));selectedFlavour.textContent='Custom mix';applyState()}
@@ -124,4 +130,5 @@ const loadPromises=Object.entries(layerPaths).flatMap(([variant,paths])=>Object.
 Promise.all(loadPromises).then(()=>{
   Object.keys(layerSets).forEach(variant=>layerSets[variant].bounds=calculateVariantBounds(layerSets[variant].sourceData));
   renderScoopy();renderFlavourPreviews();
+  window.addEventListener('resize',renderScoopy);
 }).catch(error=>console.error('Unable to load Scoopy preview layers',error));
