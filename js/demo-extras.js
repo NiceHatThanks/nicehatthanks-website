@@ -96,7 +96,7 @@
         resolve();
       };
       img.onerror = reject;
-      img.src = assetBase + file + '?v=20260820-led3';
+      img.src = assetBase + file + '?v=20260820-led4';
     });
   }
 
@@ -133,13 +133,27 @@
   function drawLed(key, colour, amount) {
     if(!images[key] || amount<=0) return;
     const layer=tint(key,colour);
+    const strength=Math.max(0,Math.min(1,amount));
     octx.save();
-    octx.globalAlpha=Math.min(1,amount);
+
+    // Wide bloom: clearly reads as an illuminated LED even on bright displays.
+    octx.globalCompositeOperation='screen';
+    octx.globalAlpha=Math.min(1,.72 + strength*.28);
     octx.shadowColor=colour;
-    octx.shadowBlur=32 + 40*amount;
+    octx.shadowBlur=52 + 54*strength;
     octx.drawImage(layer,bounds.x,bounds.y,bounds.width,bounds.height,0,0,overlay.width,overlay.height);
+
+    // Bright coloured body of the actual light pipe.
+    octx.globalCompositeOperation='source-over';
+    octx.shadowColor=colour;
+    octx.shadowBlur=24 + 22*strength;
+    octx.globalAlpha=Math.min(1,.88 + strength*.12);
+    octx.drawImage(layer,bounds.x,bounds.y,bounds.width,bounds.height,0,0,overlay.width,overlay.height);
+
+    // Hot core gives it the opaque, powered-on look that was missing before.
+    octx.globalCompositeOperation='screen';
     octx.shadowBlur=8;
-    octx.globalAlpha=Math.min(1,amount*.98);
+    octx.globalAlpha=1;
     octx.drawImage(layer,bounds.x,bounds.y,bounds.width,bounds.height,0,0,overlay.width,overlay.height);
     octx.restore();
   }
@@ -149,11 +163,11 @@
   function render(now=performance.now()) {
     octx.clearRect(0,0,overlay.width,overlay.height);
 
-    // Dark mode is represented by the centre red status LED staying on.
-    if(isDark()) drawLed('ledMid','#ff625b',0.86);
+    // Dark mode is represented by the centre red status LED staying brightly on.
+    if(isDark()) drawLed('ledMid','#ff3b32',1);
 
-    // Presence keeps the right green LED softly illuminated.
-    if(presence) drawLed('ledRight','#64e879',0.55);
+    // Presence keeps the right green LED clearly illuminated.
+    if(presence) drawLed('ledRight','#39f45b',0.9);
 
     if(pulse){
       const elapsed=now-pulse.start;
@@ -162,12 +176,11 @@
         pulse=null;
       } else {
         const t=elapsed/duration;
-        // Quick rise, long useful hold, then a gentle fade.
         let level;
-        if(t<0.12) level=t/0.12;
-        else if(t<0.72) level=1;
-        else level=1-((t-0.72)/0.28);
-        drawLed(pulse.key,pulse.colour,Math.max(0,level));
+        if(t<0.08) level=t/0.08;
+        else if(t<0.78) level=1;
+        else level=1-((t-0.78)/0.22);
+        drawLed(pulse.key,pulse.colour,Math.max(.35,level));
       }
     }
 
@@ -204,9 +217,6 @@
     document.body.classList.toggle('site-dark',dark);
     room.classList.toggle('theme-dark',dark);
     room.classList.toggle('theme-light',!dark);
-
-    // The overhead lamp represents the website state: off in light mode,
-    // illuminated only when dark mode is active.
     room.classList.toggle('is-light-on',dark);
 
     if(eventLabel){
@@ -219,15 +229,12 @@
   function toggleThemeFrom(button){
     const dark=!isDark();
     setTheme(dark,button==='buttonUp'?'Button 1':'Button 2');
-    if(button==='buttonUp') startPulse('ledLeft','#64e879',2100);
-    else startPulse('ledRight','#64e879',2100);
+    if(button==='buttonUp') startPulse('ledLeft','#39f45b',2100);
+    else startPulse('ledRight','#39f45b',2100);
   }
 
-  // Start with the normal light site and the demo lamp OFF.
   setTheme(false);
 
-  // Capture the release before the original demo handler so both buttons use the
-  // site-wide theme behaviour consistently.
   deviceCanvas.addEventListener('pointerup', e => {
     const hit=hitButton(e);
     if(hit==='buttonUp' || hit==='buttonDown'){
@@ -273,8 +280,6 @@
     }
   });
 
-  // A phone cannot sense a hovering finger, but while the thumb is touching the
-  // demo we can continuously measure that contact point to the device in CSS px.
   room.addEventListener('pointerdown', e => {
     if(e.pointerType!=='touch') return;
     touchPointerId=e.pointerId;
