@@ -13,7 +13,6 @@
   const story = document.getElementById('story');
   if (!main || !hero || !product) return;
 
-  // Hero: define the product immediately instead of leading with brand language.
   const heroCopy = hero.querySelector('.hero-copy');
   if (heroCopy) {
     heroCopy.innerHTML = `
@@ -21,10 +20,9 @@
       <h1>A tiny, open-source Home Assistant node.</h1>
       <p class="intro">Two physical buttons, three status LEDs and optional mmWave presence sensing. USB-C powered, ESPHome based and designed to disappear around your home.</p>
       <div class="hero-facts" aria-label="Scoopy highlights"><span>Completely open source</span><span>Build your own</span><span>Or buy one</span></div>
-      <div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Build it on GitHub</a><a class="button secondary" href="/shop.html">Buy a Scoopy</a></div>`;
+      <div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Build it on GitHub</a><a class="button primary" href="/shop.html">CBA to DIY?</a></div>`;
   }
 
-  // Open source belongs near the top: it is a core part of the product, not footer copy.
   let open = document.getElementById('open-source');
   if (!open) {
     open = document.createElement('section');
@@ -36,7 +34,6 @@
     hero.after(open);
   }
 
-  // Replace the repeated assembled-product cards + separate use-case wall with one concise capability section.
   product.innerHTML = `
     <div class="capability-head">
       <div><p class="eyebrow">WHAT'S INSIDE</p><h2>Small hardware. Lots of options.</h2></div>
@@ -57,29 +54,22 @@
     </div>
     <p class="small-line">Small enough to disappear. Useful enough to put everywhere.</p>`;
 
-  // The old six-card use-case section repeats the capability section, so remove it.
   if (uses) uses.remove();
   if (principles) principles.remove();
-
-  // The old late open-source/build pitch is now redundant. Keep engineering resources elsewhere, but not another sales pitch.
   if (build) build.remove();
 
-  // Simplify the engineering section copy: no repeated marketing headline.
   if (inside) {
     const copy = inside.querySelector('.inside-copy');
     if (copy) copy.innerHTML = `<p class="eyebrow">UNDER THE LID</p><h2>The hardware.</h2><p>ESP32-C3, USB-C power, tactile switches, three LEDs and I²C expansion — with the LD2410C added on the Presence version.</p><div class="inside-points"><span>ESP32-C3</span><span>USB-C</span><span>2 tactile switches</span><span>3 LEDs</span><span>I²C</span><span>Optional LD2410C</span></div>`;
   }
 
-  // Keep one concise final choice instead of another philosophy section.
   if (closing) {
     closing.innerHTML = `<p class="eyebrow">YOUR CALL</p><h2>Build it or buy it.</h2><p>Everything you need to make your own is free and open source. If you just want a finished Scoopy, that's available too.</p><div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub</a><a class="button secondary" href="/shop.html">Shop</a></div>`;
   }
 
-  // Explicit order. Story is created by main-core before this script runs.
   const ordered = [hero, open, product, demo, story, inside, closing].filter(Boolean);
   ordered.forEach(el => main.appendChild(el));
 
-  // Navigation now mirrors the shorter page.
   const nav = document.querySelector('.site-header nav');
   if (nav) nav.innerHTML = `<a href="#product">What it does</a><a href="#interactive-demo">Try it</a><a href="#story">Why</a><a href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub</a><a href="/shop.html">Shop</a>`;
 
