@@ -1,15 +1,17 @@
 // Nice Hat Thanks homepage progressive enhancements.
 
+// Keep the feature cards simple. The assembled product already shows the real
+// buttons and light pipes clearly; decorative overlays made the cards too busy.
 const buttonVisual = document.querySelector('.feature-buttons');
 if (buttonVisual) {
-  buttonVisual.querySelectorAll('.feature-mark').forEach(mark => mark.remove());
-  buttonVisual.insertAdjacentHTML('beforeend', `<div class="cad-highlight" aria-hidden="true"><img src="images/seperate/button1.png" alt=""><img src="images/seperate/button2.png" alt=""></div>`);
+  buttonVisual.querySelectorAll('.feature-mark, .cad-highlight').forEach(el => el.remove());
 }
+
 const ledVisual = document.querySelector('.feature-leds');
 if (ledVisual) {
-  ledVisual.querySelectorAll('.feature-mark').forEach(mark => mark.remove());
-  ledVisual.insertAdjacentHTML('beforeend', `<div class="cad-highlight cad-highlight-leds" aria-hidden="true"><img src="images/seperate/lightPipes.png" alt=""></div><div class="led-colour-key"><span class="green"></span><span class="red"></span><span class="green"></span><small>green · red · green</small></div>`);
+  ledVisual.querySelectorAll('.feature-mark, .cad-highlight, .led-colour-key').forEach(el => el.remove());
 }
+
 document.querySelectorAll('.presence-rings').forEach(ring => ring.remove());
 
 const usesSection = document.getElementById('uses');
@@ -33,8 +35,17 @@ if (usesSection && insideSection && !document.getElementById('story')) {
 
 const style = document.createElement('style');
 style.textContent = `
-.hero-copy h1{font-size:clamp(2.7rem,5vw,5.15rem)!important;line-height:1!important;max-width:760px}.feature-visual{isolation:isolate}.feature-visual>img{position:relative;z-index:1}.cad-highlight{position:absolute;inset:0;z-index:2;pointer-events:none}.cad-highlight img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transform:scale(1.58);filter:brightness(1.28) drop-shadow(0 0 5px rgba(245,240,230,.75))}.cad-highlight-leds img{filter:brightness(1.45) drop-shadow(0 0 6px rgba(245,240,230,.82))}.led-colour-key{position:absolute;right:12px;bottom:10px;z-index:3;display:flex;align-items:center;gap:5px;padding:6px 8px;border-radius:999px;background:rgba(28,33,27,.82);color:#f5f0e6}.led-colour-key span{width:7px;height:7px;border-radius:50%}.led-colour-key .green{background:#4fa85d}.led-colour-key .red{background:#c94c4c}.led-colour-key small{margin-left:3px;font-size:.62rem;color:rgba(245,240,230,.8)}
+.hero-copy h1{font-size:clamp(2.7rem,5vw,5.15rem)!important;line-height:1!important;max-width:760px}
+
+/* Product feature cards: clean product photography, no floating callouts. */
+.feature-visual{height:190px;background:#1c211b;overflow:hidden}
+.feature-visual>img{width:100%;height:100%;object-fit:cover;object-position:center;transform:scale(1.34)!important}
+.feature-visual.feature-leds>img{transform:scale(1.42)!important}
+.feature-visual.presence>img{transform:scale(1.3)!important}
+.feature-copy{border-top:1px solid rgba(255,255,255,.06)}
+
 .story-section{display:grid;grid-template-columns:minmax(0,.72fr) minmax(0,1.28fr);gap:clamp(44px,8vw,120px);padding:120px 0 20px;align-items:start}.story-heading{position:sticky;top:110px}.story-heading h2{font-size:clamp(2.3rem,4.3vw,4.2rem)}.story-copy{max-width:720px}.story-copy>p{margin:0 0 22px;color:var(--muted);font-size:1.05rem;line-height:1.72}.story-copy>p:first-child{color:var(--text);font-size:1.2rem;font-weight:700}.story-open{margin:34px 0;padding:28px 30px;border:1px solid var(--border);border-radius:24px;background:var(--surface)}.story-open strong{display:block;margin-bottom:12px;font-size:1.25rem;letter-spacing:-.025em}.story-open p{margin:0;color:var(--muted);line-height:1.7}.story-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:24px}
-@media(max-width:800px){.story-section{grid-template-columns:1fr;gap:28px;padding-top:88px}.story-heading{position:static}.story-copy{max-width:none}}@media(max-width:640px){.hero-copy h1{font-size:clamp(2.55rem,12vw,3.75rem)!important}.story-open{padding:24px 22px}.story-actions .button{width:100%}}
+@media(max-width:800px){.story-section{grid-template-columns:1fr;gap:28px;padding-top:88px}.story-heading{position:static}.story-copy{max-width:none}}
+@media(max-width:640px){.hero-copy h1{font-size:clamp(2.55rem,12vw,3.75rem)!important}.feature-visual{height:190px}.feature-visual>img{transform:scale(1.3)!important}.feature-visual.feature-leds>img{transform:scale(1.38)!important}.feature-visual.presence>img{transform:scale(1.26)!important}.story-open{padding:24px 22px}.story-actions .button{width:100%}}
 `;
 document.head.appendChild(style);
