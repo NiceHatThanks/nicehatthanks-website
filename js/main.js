@@ -1,11 +1,15 @@
-// Load the existing homepage behaviour, then layer the interactive demo extras on top.
+// Load the homepage behaviour, restructure the page, then layer the interactive demo on top.
 (function () {
-  const core = document.createElement('script');
-  core.src = 'js/main-core.js?v=20260820-demo-core';
-  core.onload = () => {
-    const extras = document.createElement('script');
-    extras.src = 'js/demo-extras.js?v=20260820-theme-leds';
-    document.body.appendChild(extras);
-  };
-  document.body.appendChild(core);
+  function load(src, done) {
+    const script = document.createElement('script');
+    script.src = src;
+    if (done) script.onload = done;
+    document.body.appendChild(script);
+  }
+
+  load('js/main-core.js?v=20260820-demo-core', () => {
+    load('js/homepage-flow.js?v=20260820-flow1', () => {
+      load('js/demo-extras.js?v=20260820-bright-leds');
+    });
+  });
 })();
