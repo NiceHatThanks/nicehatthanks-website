@@ -6,7 +6,7 @@
   <meta name="description" content="Configure a Scoopy Node in your favourite colour combination.">
   <title>Scoopy Node — Nice Hat Thanks</title>
   <link rel="stylesheet" href="css/style.css?v=20260820-1">
-  <link rel="stylesheet" href="css/shop.css?v=20260820-3">
+  <link rel="stylesheet" href="css/shop.css?v=20260820-4">
 </head>
 <body>
   <header class="site-header">
@@ -15,7 +15,12 @@
   </header>
   <main class="shop-main">
     <section class="shop-hero">
-      <div class="shop-preview-wrap"><div class="shop-preview" aria-label="Scoopy colour preview"><div class="scoopy-model" id="scoopyModel"><div class="scoopy-base"></div><div class="scoopy-lid"><span class="scoopy-light light-one"></span><span class="scoopy-light light-two"></span><span class="scoopy-light light-three"></span><span class="scoopy-button button-one"></span><span class="scoopy-button button-two"></span></div></div><p class="preview-note">Live colour preview</p></div></div>
+      <div class="shop-preview-wrap">
+        <div class="shop-preview" aria-label="Scoopy colour preview">
+          <canvas id="scoopyCanvas" class="scoopy-canvas" width="1200" height="1200" aria-label="Live preview of your Scoopy colour combination"></canvas>
+          <p class="preview-note">Live colour preview · actual Scoopy geometry</p>
+        </div>
+      </div>
       <div class="shop-config">
         <p class="eyebrow">SCOOPY NODE</p><h1>Make it yours.</h1><p class="shop-intro">Start with a house colourway or mix the lid, base and each button yourself.</p>
         <div class="price-row"><span class="shop-price">£12.49</span><span class="shop-status">Launching soon</span></div>
@@ -48,9 +53,9 @@
         <div class="buy-summary"><div><span>32 × 32 × 16 mm</span><span>USB-C powered</span><span>ESPHome + Home Assistant</span></div><button type="button" class="button primary buy-button" disabled>Buy now · coming soon</button><p>Checkout will be enabled here when the first units are ready. Etsy will also be available.</p></div>
       </div>
     </section>
-    <section class="shop-details"><div><p class="eyebrow">YOUR SCOOPY</p><h2>Pick a colour. Or invent one.</h2></div><div class="shop-details-copy"><p>Six core colours keep the range considered rather than overwhelming. Every printed part can still be chosen independently.</p><p>The live preview is a visual mock-up for now. Once the neutral Fusion layers are ready, this will become the photo-real configurator using the actual Scoopy geometry.</p></div></section>
+    <section class="shop-details"><div><p class="eyebrow">YOUR SCOOPY</p><h2>Pick a colour. Or invent one.</h2></div><div class="shop-details-copy"><p>Six core colours keep the range considered rather than overwhelming. Every printed part can still be chosen independently.</p><p>The preview above uses the actual Scoopy CAD renders, so the colour choices map onto the real lid, base and buttons rather than a simplified mock-up.</p></div></section>
   </main>
   <footer><span>Nice Hat Thanks</span><span>Made in the UK · Built for Home Assistant</span></footer>
-  <script src="js/shop.js?v=20260820-1"></script>
+  <script src="js/shop.js?v=20260820-2"></script>
 </body>
 </html>
