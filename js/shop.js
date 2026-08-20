@@ -12,13 +12,16 @@ const state = {
 const layerPaths = {
   base: 'images/seperate/base.png',
   pcb: 'images/seperate/pcb.png',
-  lid: 'images/seperate/lid.png',
+  lid: 'images/seperate/lid-noLightPipes.PNG',
+  lightPipes: 'images/seperate/lightPipes.png',
   button1: 'images/seperate/button1.png',
   button2: 'images/seperate/button2.png'
 };
 
 const images = {};
 const sourceData = {};
+const tintCache = new Map();
+let contentBounds = null;
 
 function hexToRgb(hex) {
   const value = hex.replace('#', '');
@@ -47,7 +50,44 @@ function loadImage(key, src) {
   });
 }
 
+function calculateContentBounds() {
+  let minX = canvas.width;
+  let minY = canvas.height;
+  let maxX = 0;
+  let maxY = 0;
+
+  Object.values(sourceData).forEach(source => {
+    for (let y = 0; y < source.height; y += 2) {
+      for (let x = 0; x < source.width; x += 2) {
+        const alpha = source.data[(y * source.width + x) * 4 + 3];
+        if (alpha > 10) {
+          minX = Math.min(minX, x);
+          minY = Math.min(minY, y);
+          maxX = Math.max(maxX, x);
+          maxY = Math.max(maxY, y);
+        }
+      }
+    }
+  });
+
+  if (maxX <= minX || maxY <= minY) {
+    return { x: 0, y: 0, width: canvas.width, height: canvas.height };
+  }
+
+  const extraX = (maxX - minX) * 0.08;
+  const extraY = (maxY - minY) * 0.08;
+  const x = Math.max(0, minX - extraX);
+  const y = Math.max(0, minY - extraY);
+  const right = Math.min(canvas.width, maxX + extraX);
+  const bottom = Math.min(canvas.height, maxY + extraY);
+
+  return { x, y, width: right - x, height: bottom - y };
+}
+
 function tintLayer(key, colour) {
+  const cacheKey = `${key}:${colour}`;
+  if (tintCache.has(cacheKey)) return tintCache.get(cacheKey);
+
   const source = sourceData[key];
   const output = new ImageData(new Uint8ClampedArray(source.data), source.width, source.height);
   const target = hexToRgb(colour);
@@ -80,24 +120,56 @@ function tintLayer(key, colour) {
   layerCanvas.width = output.width;
   layerCanvas.height = output.height;
   layerCanvas.getContext('2d').putImageData(output, 0, 0);
+  tintCache.set(cacheKey, layerCanvas);
   return layerCanvas;
 }
 
+function drawFitted(targetCtx, layer, targetWidth, targetHeight, padding = 0.06) {
+  const bounds = contentBounds;
+  const availableWidth = targetWidth * (1 - padding * 2);
+  const availableHeight = targetHeight * (1 - padding * 2);
+  const scale = Math.min(availableWidth / bounds.width, availableHeight / bounds.height);
+  const drawWidth = bounds.width * scale;
+  const drawHeight = bounds.height * scale;
+  const dx = (targetWidth - drawWidth) / 2;
+  const dy = (targetHeight - drawHeight) / 2;
+
+  targetCtx.drawImage(
+    layer,
+    bounds.x, bounds.y, bounds.width, bounds.height,
+    dx, dy, drawWidth, drawHeight
+  );
+}
+
+function renderComposite(targetCanvas, colours, padding = 0.06) {
+  if (!contentBounds) return;
+  const targetCtx = targetCanvas.getContext('2d');
+  targetCtx.clearRect(0, 0, targetCanvas.width, targetCanvas.height);
+
+  drawFitted(targetCtx, tintLayer('base', colours.base), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, images.pcb, targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('lid', colours.lid), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, images.lightPipes, targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('button1', colours.button1), targetCanvas.width, targetCanvas.height, padding);
+  drawFitted(targetCtx, tintLayer('button2', colours.button2), targetCanvas.width, targetCanvas.height, padding);
+}
+
 function renderScoopy() {
-  if (!sourceData.base || !sourceData.pcb || !sourceData.lid || !sourceData.button1 || !sourceData.button2) return;
+  if (!contentBounds) return;
+  renderComposite(canvas, state, 0.035);
+}
 
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  const base = tintLayer('base', state.base);
-  const lid = tintLayer('lid', state.lid);
-  const button1 = tintLayer('button1', state.button1);
-  const button2 = tintLayer('button2', state.button2);
-
-  ctx.drawImage(base, 0, 0);
-  ctx.drawImage(images.pcb, 0, 0, canvas.width, canvas.height);
-  ctx.drawImage(lid, 0, 0);
-  ctx.drawImage(button1, 0, 0);
-  ctx.drawImage(button2, 0, 0);
+function renderFlavourPreviews() {
+  document.querySelectorAll('.flavour-card').forEach(card => {
+    const preview = card.querySelector('.flavour-preview');
+    if (!preview) return;
+    renderComposite(preview, {
+      lid: card.dataset.lid,
+      base: card.dataset.base,
+      button1: card.dataset.button1,
+      button2: card.dataset.button2
+    }, 0.04);
+  });
 }
 
 function applyState() {
@@ -151,7 +223,11 @@ document.querySelectorAll('.flavour-card').forEach(card => {
 });
 
 Promise.all(Object.entries(layerPaths).map(([key, src]) => loadImage(key, src)))
-  .then(renderScoopy)
+  .then(() => {
+    contentBounds = calculateContentBounds();
+    renderScoopy();
+    renderFlavourPreviews();
+  })
   .catch(error => {
     console.error('Unable to load Scoopy preview layers', error);
   });
