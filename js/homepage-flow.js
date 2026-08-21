@@ -17,9 +17,9 @@
   if (heroCopy) {
     heroCopy.innerHTML = `
       <p class="eyebrow">SCOOPY NODE</p>
-      <h1>Powerful smart-home control, designed to disappear.</h1>
+      <h1>A tiny, open-source Home Assistant node.</h1>
       <p class="intro">Two physical buttons, three PWM status LEDs and optional mmWave presence sensing. USB-C powered, ESPHome based and designed for Home Assistant.</p>
-      <div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Build it on GitHub</a><a class="button primary" href="/shop.html">CBA to DIY?</a><a class="button secondary" href="/setup/">Setup</a></div>`;
+      <div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Build it on GitHub</a><a class="button primary" href="/shop.html">CBA to DIY?</a><a class="button primary" href="/setup/">Setup</a></div>`;
   }
 
   let open = document.getElementById('open-source');
