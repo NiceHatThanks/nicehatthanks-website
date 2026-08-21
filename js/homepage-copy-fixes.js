@@ -8,7 +8,7 @@
   const figures = document.querySelectorAll('.capability-renders figure');
   if (figures.length >= 2) {
     figures[0].innerHTML = '<img src="images/radar-node-exploded.png" alt="Exploded Scoopy Node with mmWave presence"><figcaption>Scoopy Node · 32 × 44 × 16 mm · mmWave</figcaption>';
-    figures[1].innerHTML = '<img src="images/node-exploded.png" alt="Exploded Scoopy Compact enclosure and electronics"><figcaption>Scoopy Compact · 32 × 32 × 16 mm</figcaption>';
+    figures[1].innerHTML = '<img src="images/node-exploded.PNG" alt="Exploded Scoopy Compact enclosure and electronics"><figcaption>Scoopy Compact · 32 × 32 × 16 mm</figcaption>';
   }
 
   // Update the maker story so presence is part of Scoopy rather than an optional extra.
