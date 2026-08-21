@@ -43,7 +43,7 @@
         </button>
         <button type="button" class="variant-card board-card" disabled>
           <span><strong>Populated PCBA</strong><small>ESP32-C3 board without presence sensor</small></span>
-          <b>£8.00</b>
+          <b>£8.49</b>
         </button>
       </div>
       <p class="board-note">Board-only options will launch alongside the complete devices. Enclosure, USB cable and power supply are not included.</p>`;
@@ -61,13 +61,13 @@
     if (summaryItems) {
       summaryItems.innerHTML = isPresence
         ? '<span>32 × 44 × 16 mm</span><span>mmWave presence</span><span>USB-C powered</span><span>ESPHome + Home Assistant</span><span>USB cable / power supply not included</span>'
-        : '<span>32 × 32 × 16 mm</span><span>No presence sensing</span><span>USB-C powered</span><span>ESPHome + Home Assistant</span><span>USB cable / power supply not included</span>';
+        : '<span>32 × 32 × 16 mm</span><span>USB-C powered</span><span>ESPHome + Home Assistant</span><span>USB cable / power supply not included</span>';
     }
 
     if (variantDescription) {
       variantDescription.textContent = isPresence
         ? 'Scoopy combines physical controls, status LEDs and mmWave room presence.'
-        : 'Scoopy Compact keeps the buttons and status LEDs in the smallest enclosure, without presence sensing.';
+        : 'Scoopy Compact keeps the buttons and status LEDs in the smallest enclosure.';
     }
   }
 
