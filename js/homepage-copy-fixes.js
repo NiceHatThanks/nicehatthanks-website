@@ -11,6 +11,18 @@
     figures[1].innerHTML = '<img src="images/node-exploded.PNG" alt="Exploded Scoopy Compact enclosure and electronics"><figcaption>Scoopy Compact · 32 × 32 × 16 mm</figcaption>';
   }
 
+  // Hero product cards should jump to the rebuilt hardware/options section.
+  const product = document.getElementById('product');
+  if (product) {
+    document.querySelectorAll('.hero-showcase .hero-variant').forEach(card => {
+      card.setAttribute('href', '#product');
+      card.addEventListener('click', event => {
+        event.preventDefault();
+        product.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+  }
+
   // Update the maker story so presence is part of Scoopy rather than an optional extra.
   const story = document.getElementById('story');
   if (story) {
