@@ -1,5 +1,5 @@
 // Rebuild the homepage flow around the three things a new visitor needs first:
-// what Scoopy is, that it is completely open source, and what it can do.
+// what Scoopy is, that you can build your own, and what it can do.
 (function () {
   const main = document.querySelector('main');
   const hero = document.querySelector('.hero');
@@ -17,8 +17,8 @@
   if (heroCopy) {
     heroCopy.innerHTML = `
       <p class="eyebrow">SCOOPY NODE</p>
-      <h1>A tiny, open-source Home Assistant node.</h1>
-      <p class="intro">Two physical buttons, three PWM status LEDs and optional mmWave presence sensing. USB-C powered, ESPHome based and designed for Home Assistant.</p>
+      <h1>A tiny Home Assistant room node with mmWave presence.</h1>
+      <p class="intro">Two physical buttons, three PWM status LEDs and mmWave presence sensing. USB-C powered, ESPHome based and designed for Home Assistant. Need something smaller? Scoopy Compact keeps the buttons and LEDs without presence sensing.</p>
       <div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">Build it on GitHub</a><a class="button primary" href="/shop.html">CBA to DIY?</a><a class="button primary" href="/setup/">Setup</a></div>`;
   }
 
@@ -28,25 +28,25 @@
     open.id = 'open-source';
     open.className = 'open-source-strip';
     open.innerHTML = `
-      <div><p class="eyebrow">FREE & OPEN SOURCE</p><h2>Yours to build, change or just use.</h2></div>
-      <div class="open-source-copy"><p>The PCB design, schematics, Gerbers, BOM, ESPHome configuration and documentation all live together on GitHub. The enclosure models are available on MakerWorld, so you can order the boards, print the case and build the same Scoopy yourself — or turn it into something completely different.</p><div class="open-links"><a href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub →</a><a href="https://makerworld.com" target="_blank" rel="noreferrer">MakerWorld →</a></div></div>`;
+      <div><p class="eyebrow">BUILD YOUR OWN</p><h2>Yours to inspect, build and change.</h2></div>
+      <div class="open-source-copy"><p>The PCB design, Gerbers, BOM, ESPHome configuration, documentation and printable enclosure files are available so you can source the parts, print the case and build a Scoopy yourself — or adapt it for your own non-commercial project.</p><p>Personal builds and modifications are welcome. Commercial manufacture or sale requires permission from Nice Hat Thanks.</p><div class="open-links"><a href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub →</a><a href="https://makerworld.com" target="_blank" rel="noreferrer">MakerWorld →</a></div></div>`;
     hero.after(open);
   }
 
   product.innerHTML = `
     <div class="capability-head">
       <div><p class="eyebrow">WHAT'S INSIDE</p><h2>Small hardware. Lots of options.</h2></div>
-      <p>Use Scoopy as a pair of smart-home buttons, a glanceable status display, a presence sensor, or all three at once.</p>
+      <p>Use Scoopy as a pair of smart-home buttons, a glanceable status display and a presence sensor — or choose Scoopy Compact when you do not need presence sensing.</p>
     </div>
     <div class="capability-layout">
       <div class="capability-renders">
-        <figure><img src="images/node-exploded.png" alt="Exploded Scoopy Node enclosure and electronics"><figcaption>Scoopy Node · 32 × 32 × 16 mm</figcaption></figure>
-        <figure><img src="images/radar-node-exploded.png" alt="Exploded Scoopy Node with mmWave presence"><figcaption>Node + Presence · 32 × 44 × 16 mm</figcaption></figure>
+        <figure><img src="images/radar-node-exploded.png" alt="Exploded Scoopy Node with mmWave presence"><figcaption>Scoopy Node · 32 × 44 × 16 mm · mmWave</figcaption></figure>
+        <figure><img src="images/node-exploded.png" alt="Exploded Scoopy Compact enclosure and electronics"><figcaption>Scoopy Compact · 32 × 32 × 16 mm</figcaption></figure>
       </div>
       <div class="capability-list">
         <details open><summary><span><strong>Two physical buttons</strong><small>Single · double · hold</small></span><b>+</b></summary><p>Trigger lights, fans, blinds, scenes or any Home Assistant automation. Single, double and hold can each do something different. Holding both buttons together for 10 seconds resets Scoopy's Wi-Fi, so save that one for when you mean it.</p></details>
         <details><summary><span><strong>Three PWM status LEDs</strong><small>Brightness · pulse · flash · alert</small></span><b>+</b></summary><p>Set each LED's brightness independently, keep one gently dimmed as a locator, or use built-in pulse, flash and alert effects to show useful states at a glance.</p></details>
-        <details><summary><span><strong>Optional mmWave presence</strong><small>LD2410C · motion + still presence</small></span><b>+</b></summary><p>Make room automations react to occupancy, including someone sitting still at a desk. Useful for lighting that changes with presence and time of day.</p></details>
+        <details><summary><span><strong>mmWave presence</strong><small>LD2410C · motion + still presence</small></span><b>+</b></summary><p>Scoopy uses mmWave sensing to make room automations react to occupancy, including someone sitting still at a desk. Scoopy Compact is available for rooms where presence sensing is not needed.</p></details>
         <details><summary><span><strong>ESPHome + Home Assistant</strong><small>Local · Wi-Fi · configurable</small></span><b>+</b></summary><p>Everything is exposed through ESPHome, so the buttons, LEDs and presence sensor can become whatever your automations need. No cloud account required.</p></details>
         <details><summary><span><strong>Useful little extras</strong><small>USB-C · ESP32-C3 · I²C expansion</small></span><b>+</b></summary><p>Powered over USB-C with an ESP32-C3 at its core and an I²C connection available for future sensors and experiments.</p></details>
       </div>
@@ -59,11 +59,11 @@
 
   if (inside) {
     const copy = inside.querySelector('.inside-copy');
-    if (copy) copy.innerHTML = `<p class="eyebrow">UNDER THE LID</p><h2>The hardware.</h2><p>ESP32-C3, USB-C power, tactile switches, three PWM LEDs and I²C expansion — with the LD2410C added on the Presence version.</p><div class="inside-points"><span>ESP32-C3</span><span>USB-C</span><span>2 tactile switches</span><span>3 PWM LEDs</span><span>I²C</span><span>Optional LD2410C</span></div>`;
+    if (copy) copy.innerHTML = `<p class="eyebrow">UNDER THE LID</p><h2>The hardware.</h2><p>ESP32-C3, USB-C power, tactile switches, three PWM LEDs, I²C expansion and LD2410C mmWave presence sensing. Scoopy Compact keeps the same core hardware without the radar.</p><div class="inside-points"><span>ESP32-C3</span><span>USB-C</span><span>2 tactile switches</span><span>3 PWM LEDs</span><span>I²C</span><span>LD2410C mmWave</span></div>`;
   }
 
   if (closing) {
-    closing.innerHTML = `<p class="eyebrow">YOUR CALL</p><h2>Build it your way.</h2><p>Everything you need to make your own is free and open source.</p><div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub</a></div>`;
+    closing.innerHTML = `<p class="eyebrow">YOUR CALL</p><h2>Build it your way.</h2><p>The hardware, firmware and printable files are source available for personal builds and modifications. Commercial manufacture or sale requires permission from Nice Hat Thanks.</p><div class="actions"><a class="button primary" href="https://github.com/NiceHatThanks/scoopy-node" target="_blank" rel="noreferrer">GitHub</a></div>`;
   }
 
   const ordered = [hero, open, product, demo, story, inside, closing].filter(Boolean);
