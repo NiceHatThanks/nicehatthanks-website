@@ -1,12 +1,19 @@
 # Scoopy setup screenshots
 
-Drop the real onboarding screenshots/images in this folder when they are ready.
+These screenshots are used by `setup/index.html` to show the real onboarding and Home Assistant flow.
 
-Suggested filenames used by the comments in `setup/index.html`:
+Current assets:
 
-- `red-led-pulsing.jpg` — Scoopy with the middle red LED pulsing in setup mode
-- `scoopy-wifi-network.jpg` — phone/computer Wi-Fi menu showing `scoopy-XXXXXX`
-- `captive-portal.jpg` — Scoopy/ESPHome captive portal showing nearby Wi-Fi networks
-- `home-assistant-discovery.jpg` — Home Assistant discovery screen showing Scoopy
+- `captive-portal.jpg` — Scoopy captive portal used for Wi-Fi setup
+- `home-assistant-discoverypng.png` — Home Assistant discovery card showing Scoopy
+- `do-you-want-to-add-the-device-to-Home-Assistant.png` — confirmation dialog shown after pressing Add
+- `home-assistant-name-and-assign.png` — device naming and area assignment screen
+- `deviceInfo-Controls.png` — the three Scoopy LED controls
+- `deviceInfo-controls-LED-brightness.png` — LED brightness control
+- `deviceInfo-controls-LED-effects.png` — built-in LED effects menu
+- `deviceInfo-Events.png` — button event entities
+- `deviceInfo-Sensors.png` — mmWave sensor entities for Scoopy + Presence
 
-The page currently uses styled HTML placeholders instead of image assets. Replace each `.image-placeholder` block in `setup/index.html` with the corresponding `<img>` example directly below it in the HTML comment.
+The pulsing red setup LED is represented with a lightweight CSS animation on the setup page, so no image asset is required for that step.
+
+There is deliberately no Wi-Fi-settings screenshot: the written instructions are enough to explain how to join `scoopy-XXXXXX`.
