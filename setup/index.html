@@ -6,7 +6,7 @@
   <meta name="description" content="Set up your Scoopy Node, connect it to Wi-Fi and add it to Home Assistant.">
   <title>Set up your Scoopy · Nice Hat Thanks</title>
   <link rel="stylesheet" href="../css/style.css?v=20260820-home-refresh">
-  <link rel="stylesheet" href="../css/setup.css?v=20260821-real-lightpipe">
+  <link rel="stylesheet" href="../css/setup.css?v=20260821-cropped-lightpipe">
 </head>
 <body>
 <header class="site-header">
@@ -27,7 +27,7 @@
       <p class="intro">You’ll be up and running in a couple of minutes. Plug Scoopy in, give it your Wi-Fi details, then add it to Home Assistant.</p>
       <div class="actions">
         <a class="button primary" href="#start">Start setup ↓</a>
-        <a class="button secondary" href="#recovery">Reset Wi-Fi</a>
+        <a class="button primary" href="#recovery">Factory Reset</a>
       </div>
     </div>
 
@@ -189,7 +189,7 @@
         <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-Events.png" alt="Scoopy button events in Home Assistant"></figure>
       </article>
 
-      <article class="capability-card capability-wide">
+      <article class="capability-card capability-wide led-options-card">
         <div class="capability-copy"><span class="capability-kicker">LED OPTIONS</span><h3>Choose brightness and effects</h3><p>Open an LED entity to set its brightness or choose one of Scoopy’s built-in pulse, flash and alert effects.</p></div>
         <div class="screenshot-pair">
           <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-controls-LED-brightness.png" alt="Scoopy LED brightness control in Home Assistant"></figure>
@@ -205,13 +205,13 @@
   </section>
 
   <section class="recovery-panel" id="recovery">
-    <p class="eyebrow">MOVING HOUSE? CHANGING WI-FI?</p>
-    <h2>Reset Scoopy’s Wi-Fi and start again.</h2>
-    <p>You do not need to reflash anything. Scoopy can forget its saved Wi-Fi details and return to setup mode using the two physical buttons.</p>
+    <p class="eyebrow">STARTING OVER?</p>
+    <h2>Factory reset Scoopy and start again.</h2>
+    <p>A factory reset clears Scoopy’s saved Wi-Fi credentials and returns it to setup mode. You do not need to reflash anything.</p>
 
     <div class="recovery-steps">
       <article><span>01</span><h3>Hold both buttons</h3><p>Press and hold both physical buttons together for 10 seconds.</p></article>
-      <article><span>02</span><h3>Watch for the warning</h3><p>During the final part of the hold, the middle red LED flashes quickly to warn that a reset is about to happen.</p></article>
+      <article><span>02</span><h3>Watch for the warning</h3><p>During the final part of the hold, the middle red LED flashes quickly to warn that a factory reset is about to happen.</p></article>
       <article><span>03</span><h3>Set it up again</h3><p>Scoopy clears its Wi-Fi credentials, the red LED begins pulsing again, and the <span class="inline-code">scoopy-XXXXXX</span> setup network returns.</p></article>
     </div>
   </section>
