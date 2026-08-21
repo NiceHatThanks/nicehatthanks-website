@@ -9,7 +9,7 @@
 
   load('js/main-core.js?v=20260820-demo-core', () => {
     load('js/homepage-flow.js?v=20260821-flow2', () => {
-      load('js/homepage-copy-fixes.js?v=20260821-copy1', () => {
+      load('js/homepage-copy-fixes.js?v=20260821-copy2', () => {
         load('js/demo-extras.js?v=20260820-bright-leds');
       });
     });
