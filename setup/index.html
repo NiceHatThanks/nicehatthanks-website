@@ -6,7 +6,7 @@
   <meta name="description" content="Set up your Scoopy Node, connect it to Wi-Fi and add it to Home Assistant.">
   <title>Set up your Scoopy · Nice Hat Thanks</title>
   <link rel="stylesheet" href="../css/style.css?v=20260820-home-refresh">
-  <link rel="stylesheet" href="../css/setup.css?v=20260821-real-screenshots">
+  <link rel="stylesheet" href="../css/setup.css?v=20260821-compact-screenshots">
 </head>
 <body>
 <header class="site-header">
@@ -183,17 +183,17 @@
 
     <div class="capabilities-grid">
       <article class="capability-card">
-        <div class="capability-copy"><span class="capability-kicker">CONTROLS</span><h3>Control all three LEDs</h3><p>Each LED appears as its own light entity, so you can switch it on or off directly from Home Assistant.</p></div>
+        <div class="capability-copy"><span class="capability-kicker">CONTROLS</span><h3>Control all three LEDs</h3><p>Each PWM LED appears as its own light entity, so you can switch it on or off and choose the brightness directly from Home Assistant.</p></div>
         <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-Controls.png" alt="Scoopy controls in Home Assistant showing Left LED, Middle LED and Right LED"></figure>
       </article>
 
       <article class="capability-card">
-        <div class="capability-copy"><span class="capability-kicker">BUTTON EVENTS</span><h3>Use presses in automations</h3><p>Button events show which physical button was pressed and the press type, ready for Home Assistant automations.</p></div>
+        <div class="capability-copy"><span class="capability-kicker">BUTTON EVENTS</span><h3>One button, several presses</h3><p>Button events report single, double and hold presses, ready to use as separate triggers in Home Assistant automations.</p></div>
         <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-Events.png" alt="Scoopy button events in Home Assistant"></figure>
       </article>
 
       <article class="capability-card capability-wide">
-        <div class="capability-copy"><span class="capability-kicker">LED OPTIONS</span><h3>Choose brightness and effects</h3><p>Open an LED entity to set brightness or choose one of Scoopy’s built-in effects such as pulse, flash and alert.</p></div>
+        <div class="capability-copy"><span class="capability-kicker">LED OPTIONS</span><h3>Choose brightness and effects</h3><p>Open an LED entity to set its brightness or choose one of Scoopy’s built-in pulse, flash and alert effects.</p></div>
         <div class="screenshot-pair">
           <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-controls-LED-brightness.png" alt="Scoopy LED brightness control in Home Assistant"></figure>
           <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-controls-LED-effects.png" alt="Scoopy LED effects menu in Home Assistant"></figure>
@@ -201,7 +201,7 @@
       </article>
 
       <article class="capability-card capability-wide presence-card">
-        <div class="capability-copy"><span class="capability-kicker">SCOOPY + PRESENCE</span><h3>Presence sensors appear automatically</h3><p>On the Presence version you’ll also see moving target, presence and still target sensors from the mmWave module.</p></div>
+        <div class="capability-copy"><span class="capability-kicker">SCOOPY + PRESENCE</span><h3>Presence sensors appear automatically</h3><p>On Scoopy + Presence you’ll see moving target, presence and still target sensors from the mmWave module. On a standard Scoopy without the radar, these sensor entities may show <strong>Unknown</strong> — that’s expected and they can simply be ignored.</p></div>
         <figure class="setup-screenshot sensor-shot"><img src="../images/setup/deviceInfo-Sensors.png" alt="Scoopy Presence sensors in Home Assistant showing moving, presence and still targets"></figure>
       </article>
     </div>
