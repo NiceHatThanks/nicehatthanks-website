@@ -6,7 +6,7 @@
   <meta name="description" content="Set up your Scoopy Node, connect it to Wi-Fi and add it to Home Assistant.">
   <title>Set up your Scoopy · Nice Hat Thanks</title>
   <link rel="stylesheet" href="../css/style.css?v=20260820-home-refresh">
-  <link rel="stylesheet" href="../css/setup.css?v=20260821-setup-page">
+  <link rel="stylesheet" href="../css/setup.css?v=20260821-real-screenshots">
 </head>
 <body>
 <header class="site-header">
@@ -41,7 +41,7 @@
         <dt>Manual setup page</dt>
         <dd><code>192.168.4.1</code></dd>
         <dt>Setup indicator</dt>
-        <dd>Pulsing middle red LED</dd>
+        <dd><span class="status-led" aria-hidden="true"></span>Pulsing middle red LED</dd>
       </dl>
     </aside>
   </section>
@@ -59,11 +59,17 @@
         <div class="step-content">
           <h3>Plug Scoopy into USB power</h3>
           <p>Use a USB-C cable and any normal USB power source. Scoopy will boot automatically.</p>
-          <p>If it has not been connected to Wi-Fi before, the middle red LED will gently pulse. That means Scoopy is ready for setup.</p>
-          <div class="image-placeholder pink" aria-label="Image placeholder: Scoopy red LED pulsing">
-            <div><span>[IMAGE: Scoopy red LED pulsing]</span><small>Replace with a product photo or short animation later.</small></div>
+          <p>If it has not been connected to Wi-Fi before, the middle red LED gently pulses. That means Scoopy is ready for setup.</p>
+          <div class="setup-led-demo" aria-label="Animated example of the middle red setup LED pulsing">
+            <div class="node-demo" aria-hidden="true">
+              <span class="node-button"></span>
+              <span class="node-led left"></span>
+              <span class="node-led middle"></span>
+              <span class="node-led right"></span>
+              <span class="node-button"></span>
+            </div>
+            <div><strong>Red LED pulsing?</strong><span>Scoopy is waiting for Wi-Fi details.</span></div>
           </div>
-          <!-- Replace the placeholder above with an image such as: <img src="../images/setup/red-led-pulsing.jpg" alt="Scoopy with the middle red LED pulsing"> -->
         </div>
       </article>
 
@@ -71,13 +77,9 @@
         <div class="step-number">02</div>
         <div class="step-content">
           <h3>Join the Scoopy setup Wi-Fi</h3>
-          <p>On your phone, tablet or computer, open Wi-Fi settings and look for a network named <span class="inline-code">scoopy-XXXXXX</span>.</p>
-          <p>The final six characters are unique to your Scoopy, so your network name will look something like <span class="inline-code">scoopy-A1B2C3</span>.</p>
+          <p>On your phone, tablet or computer, open Wi-Fi settings and connect to a network named <span class="inline-code">scoopy-XXXXXX</span>.</p>
+          <p>The final six characters are unique to your Scoopy, so yours might look like <span class="inline-code">scoopy-216d18</span>.</p>
           <div class="setup-callout"><strong>Wi-Fi password:</strong> <span class="inline-code">scoopy123</span></div>
-          <div class="image-placeholder" aria-label="Image placeholder: Phone Wi-Fi menu showing scoopy-XXXXXX">
-            <div><span>[IMAGE: Phone Wi-Fi menu showing scoopy-XXXXXX]</span><small>Replace with an iPhone, Android or laptop Wi-Fi screenshot.</small></div>
-          </div>
-          <!-- Replace the placeholder above with: <img src="../images/setup/scoopy-wifi-network.jpg" alt="Phone Wi-Fi menu showing the Scoopy setup network"> -->
         </div>
       </article>
 
@@ -85,12 +87,11 @@
         <div class="step-number">03</div>
         <div class="step-content">
           <h3>Open the Scoopy setup page</h3>
-          <p>The captive portal should open automatically after you connect to the Scoopy Wi-Fi network.</p>
-          <p>If nothing appears, open a browser and go to <span class="inline-code">http://192.168.4.1/</span>.</p>
-          <div class="image-placeholder pink" aria-label="Image placeholder: Scoopy captive portal">
-            <div><span>[IMAGE: Scoopy captive portal]</span><small>Replace with the real ESPHome captive portal screenshot.</small></div>
-          </div>
-          <!-- Replace the placeholder above with: <img src="../images/setup/captive-portal.jpg" alt="Scoopy captive portal showing nearby Wi-Fi networks"> -->
+          <p>The setup page should open automatically after you connect to Scoopy’s Wi-Fi network. If nothing appears, open a browser and go to <span class="inline-code">http://192.168.4.1/</span>.</p>
+          <figure class="setup-screenshot portal-shot">
+            <img src="../images/setup/captive-portal.jpg" alt="Scoopy captive portal with Wi-Fi network and password fields">
+            <figcaption>This is the page you’re looking for.</figcaption>
+          </figure>
         </div>
       </article>
 
@@ -98,8 +99,8 @@
         <div class="step-number">04</div>
         <div class="step-content">
           <h3>Choose your home Wi-Fi</h3>
-          <p>Scoopy will show the nearby Wi-Fi networks it can see. Select your home network, enter its password, then press <strong>Connect Scoopy</strong>.</p>
-          <p>Scoopy will save those details and connect to your network.</p>
+          <p>Select your home network, enter its Wi-Fi password, then press <strong>Connect Scoopy</strong>.</p>
+          <p>Scoopy saves those details and joins your normal home network.</p>
         </div>
       </article>
 
@@ -107,9 +108,9 @@
         <div class="step-number">05</div>
         <div class="step-content">
           <h3>Wait for the red LED to turn off</h3>
-          <p>Once the Wi-Fi connection succeeds, the setup page should normally close by itself and your phone or computer can return to its usual Wi-Fi network.</p>
+          <p>Once the connection succeeds, the setup page should normally close by itself and your phone or computer can return to its usual Wi-Fi network.</p>
           <p>The middle red setup LED turns off when Scoopy is connected.</p>
-          <div class="setup-callout"><strong>That’s the Wi-Fi part done.</strong> Scoopy is now on your local network and ready for Home Assistant.</div>
+          <div class="setup-callout"><strong>Wi-Fi done.</strong> Scoopy is now on your local network and ready for Home Assistant.</div>
         </div>
       </article>
     </div>
@@ -119,12 +120,12 @@
     <div class="setup-heading">
       <p class="eyebrow">WI-FI CHECK</p>
       <h2>If the setup page doesn’t appear.</h2>
-      <p>Captive portals can behave slightly differently between phones and computers. These three checks fix most setup hiccups.</p>
+      <p>Captive portals can behave slightly differently between phones and computers. These checks fix most setup hiccups.</p>
     </div>
     <div class="mini-grid">
       <article class="mini-card"><strong>Check you joined Scoopy</strong><p>Make sure your device is connected to <span class="inline-code">scoopy-XXXXXX</span>, not your normal home Wi-Fi.</p></article>
       <article class="mini-card"><strong>Open it manually</strong><p>Visit <span class="inline-code">http://192.168.4.1/</span> in your browser while you are still connected to Scoopy.</p></article>
-      <article class="mini-card"><strong>Ignore “no internet”</strong><p>The Scoopy setup network is local only, so your phone may warn that it has no internet connection. That is expected during setup.</p></article>
+      <article class="mini-card"><strong>Ignore “no internet”</strong><p>The Scoopy setup network is local only, so your phone may warn that it has no internet connection. That is expected.</p></article>
     </div>
   </section>
 
@@ -139,31 +140,69 @@
       <article class="setup-step">
         <div class="step-number">06</div>
         <div class="step-content">
-          <h3>Open Home Assistant</h3>
-          <p>Look for a newly discovered ESPHome device. Depending on your Home Assistant setup, this may appear as a discovery notification or under <strong>Settings → Devices &amp; services</strong>.</p>
-          <div class="image-placeholder" aria-label="Image placeholder: Home Assistant discovery screen">
-            <div><span>[IMAGE: Home Assistant discovery screen]</span><small>Replace with the final Home Assistant discovery screenshot.</small></div>
-          </div>
-          <!-- Replace the placeholder above with: <img src="../images/setup/home-assistant-discovery.jpg" alt="Home Assistant discovery screen showing Scoopy"> -->
+          <h3>Find the discovered Scoopy</h3>
+          <p>Open Home Assistant and look for the newly discovered ESPHome device. You may see it as a discovery card, or under <strong>Settings → Devices &amp; services</strong>.</p>
+          <figure class="setup-screenshot compact-shot">
+            <img src="../images/setup/home-assistant-discoverypng.png" alt="Home Assistant showing a discovered Scoopy ESPHome device">
+            <figcaption>Press <strong>Add</strong> on the discovered Scoopy.</figcaption>
+          </figure>
         </div>
       </article>
 
       <article class="setup-step">
         <div class="step-number">07</div>
         <div class="step-content">
-          <h3>Add Scoopy</h3>
-          <p>Select the discovered Scoopy device and follow Home Assistant’s prompts to add it.</p>
-          <p>Once added, you can use its buttons, status LEDs and — on the Presence version — presence sensor in your automations and dashboards.</p>
+          <h3>Confirm that you want to add it</h3>
+          <p>Home Assistant asks for a quick confirmation before adding the device. Press <strong>Submit</strong>.</p>
+          <figure class="setup-screenshot compact-shot">
+            <img src="../images/setup/do-you-want-to-add-the-device-to-Home-Assistant.png" alt="Home Assistant confirmation dialog asking to add the discovered Scoopy device">
+          </figure>
         </div>
       </article>
 
       <article class="setup-step">
         <div class="step-number">08</div>
         <div class="step-content">
-          <h3>Make it yours</h3>
-          <p>Try something simple first: make a button toggle a light, use an LED to show whether the front door is locked, or trigger a favourite Home Assistant scene.</p>
-          <p>After that, Scoopy is just another local Home Assistant device — use it however you like.</p>
+          <h3>Give Scoopy a useful name</h3>
+          <p>Name it for where it lives — for example <strong>Scoopy - Office</strong> — and assign it to a Home Assistant area if you want to.</p>
+          <figure class="setup-screenshot compact-shot wide-shot">
+            <img src="../images/setup/home-assistant-name-and-assign.png" alt="Home Assistant name and assign screen for Scoopy">
+            <figcaption>You can always rename or move it to another area later.</figcaption>
+          </figure>
         </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="capabilities-section" id="controls">
+    <div class="setup-heading">
+      <p class="eyebrow">03 · MAKE IT YOURS</p>
+      <h2>That’s setup finished. Here’s what appears in Home Assistant.</h2>
+      <p>Scoopy exposes simple controls and events you can use in dashboards and automations. The Presence version adds its mmWave sensors too.</p>
+    </div>
+
+    <div class="capabilities-grid">
+      <article class="capability-card">
+        <div class="capability-copy"><span class="capability-kicker">CONTROLS</span><h3>Control all three LEDs</h3><p>Each LED appears as its own light entity, so you can switch it on or off directly from Home Assistant.</p></div>
+        <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-Controls.png" alt="Scoopy controls in Home Assistant showing Left LED, Middle LED and Right LED"></figure>
+      </article>
+
+      <article class="capability-card">
+        <div class="capability-copy"><span class="capability-kicker">BUTTON EVENTS</span><h3>Use presses in automations</h3><p>Button events show which physical button was pressed and the press type, ready for Home Assistant automations.</p></div>
+        <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-Events.png" alt="Scoopy button events in Home Assistant"></figure>
+      </article>
+
+      <article class="capability-card capability-wide">
+        <div class="capability-copy"><span class="capability-kicker">LED OPTIONS</span><h3>Choose brightness and effects</h3><p>Open an LED entity to set brightness or choose one of Scoopy’s built-in effects such as pulse, flash and alert.</p></div>
+        <div class="screenshot-pair">
+          <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-controls-LED-brightness.png" alt="Scoopy LED brightness control in Home Assistant"></figure>
+          <figure class="setup-screenshot"><img src="../images/setup/deviceInfo-controls-LED-effects.png" alt="Scoopy LED effects menu in Home Assistant"></figure>
+        </div>
+      </article>
+
+      <article class="capability-card capability-wide presence-card">
+        <div class="capability-copy"><span class="capability-kicker">SCOOPY + PRESENCE</span><h3>Presence sensors appear automatically</h3><p>On the Presence version you’ll also see moving target, presence and still target sensors from the mmWave module.</p></div>
+        <figure class="setup-screenshot sensor-shot"><img src="../images/setup/deviceInfo-Sensors.png" alt="Scoopy Presence sensors in Home Assistant showing moving, presence and still targets"></figure>
       </article>
     </div>
   </section>
