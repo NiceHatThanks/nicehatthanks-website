@@ -6,7 +6,7 @@
   <meta name="description" content="Set up your Scoopy Node, connect it to Wi-Fi and add it to Home Assistant.">
   <title>Set up your Scoopy · Nice Hat Thanks</title>
   <link rel="stylesheet" href="../css/style.css?v=20260820-home-refresh">
-  <link rel="stylesheet" href="../css/setup.css?v=20260821-compact-screenshots">
+  <link rel="stylesheet" href="../css/setup.css?v=20260821-real-lightpipe">
 </head>
 <body>
 <header class="site-header">
@@ -60,15 +60,12 @@
           <h3>Plug Scoopy into USB power</h3>
           <p>Use a USB-C cable and any normal USB power source. Scoopy will boot automatically.</p>
           <p>If it has not been connected to Wi-Fi before, the middle red LED gently pulses. That means Scoopy is ready for setup.</p>
-          <div class="setup-led-demo" aria-label="Animated example of the middle red setup LED pulsing">
-            <div class="node-demo" aria-hidden="true">
-              <span class="node-button"></span>
-              <span class="node-led left"></span>
-              <span class="node-led middle"></span>
-              <span class="node-led right"></span>
-              <span class="node-button"></span>
+          <div class="setup-led-demo" aria-label="Scoopy with the middle setup light pulsing">
+            <div class="scoopy-lightpipe-demo" aria-hidden="true">
+              <img class="scoopy-lightpipe-base" src="../images/setup/scoopy-noMidLightpipe.png" alt="">
+              <img class="scoopy-lightpipe-pulse" src="../images/setup/scoopy-MidLightpipe.png" alt="">
             </div>
-            <div><strong>Red LED pulsing?</strong><span>Scoopy is waiting for Wi-Fi details.</span></div>
+            <div class="setup-led-copy"><strong>Middle light pulsing?</strong><span>Scoopy is waiting for Wi-Fi details.</span></div>
           </div>
         </div>
       </article>
