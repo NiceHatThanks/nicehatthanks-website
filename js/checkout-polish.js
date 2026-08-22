@@ -51,8 +51,5 @@
   }
 
   tidyCartTitles();
-  const cartLines = document.querySelector('.sandbox-cart-lines');
-  if (cartLines) {
-    new MutationObserver(tidyCartTitles).observe(cartLines, { childList: true, subtree: true });
-  }
+  new MutationObserver(tidyCartTitles).observe(document.body, { childList: true, subtree: true });
 })();
