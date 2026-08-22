@@ -9,6 +9,10 @@
       background:#F5F0E6;
     }
 
+    .checkout-test-enabled .custom-purchase-preview{
+      background:#1C211B;
+    }
+
     @media(min-width:981px){
       .checkout-test-enabled .flavour-card{grid-template-columns:142px minmax(0,1fr);min-height:170px;gap:22px;padding:18px}
       .checkout-test-enabled .flavour-preview{width:134px;height:134px;border-radius:18px}
