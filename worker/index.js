@@ -73,7 +73,6 @@ const allowedConfigurations = new Set([
   'Custom mix',
 ]);
 
-// These are technical sanity limits, not a total-order cap.
 const maxLineQuantity = 99;
 const maxCartLines = 20;
 
@@ -200,6 +199,7 @@ function previewUrl(item, origin) {
   }
 
   const url = new URL('/api/product-preview.svg', origin);
+  url.searchParams.set('v', '2');
   url.searchParams.set('product', item.product);
   url.searchParams.set('lid', item.colours.lid);
   url.searchParams.set('base', item.colours.base);
@@ -214,8 +214,6 @@ function colourMatrixFilter(id, colourName) {
   const green = Number.parseInt(hex.slice(3, 5), 16);
   const blue = Number.parseInt(hex.slice(5, 7), 16);
 
-  // Match the browser preview's luminance-preserving tint closely. shop.js uses
-  // 72% of the source luminance variation around a roughly mid-grey reference.
   const redOffset = ((red - 108) / 255).toFixed(6);
   const greenOffset = ((green - 108) / 255).toFixed(6);
   const blueOffset = ((blue - 108) / 255).toFixed(6);
@@ -309,7 +307,6 @@ async function createCheckoutSession(request, env) {
     return json({ error: 'Stripe is not configured.' }, 500);
   }
 
-  // This endpoint is intentionally sandbox-only while checkout is under development.
   if (!stripeIsTestMode(env)) {
     return json({ error: 'Checkout is locked to Stripe test mode.' }, 500);
   }
@@ -338,9 +335,6 @@ async function createCheckoutSession(request, env) {
   cart.items.forEach((item, index) => {
     const product = products[item.product];
     const linePrefix = `line_items[${index}]`;
-
-    // Price and display data are built here on the trusted Worker. The browser
-    // only supplies product/configuration selections and cannot set the price.
     params.set(`${linePrefix}[price_data][currency]`, 'gbp');
     params.set(`${linePrefix}[price_data][unit_amount]`, String(product.unitAmount));
     params.set(`${linePrefix}[price_data][product_data][name]`, checkoutLineName(item));
@@ -385,12 +379,11 @@ function readCartFromMetadata(metadata = {}) {
         const item = JSON.parse(raw);
         if (item && typeof item === 'object') items.push(item);
       } catch {
-        // Ignore malformed metadata entries; the payment status can still be verified.
+        // Ignore malformed metadata entries.
       }
     }
   }
 
-  // Backwards compatibility with the first single-item sandbox tests.
   if (!items.length && metadata.product_key) {
     const item = {
       product: metadata.product_key,
