@@ -87,3 +87,7 @@
   `;
   document.head.appendChild(style);
 })();
+
+const checkoutStatusScript = document.createElement('script');
+checkoutStatusScript.src = 'js/checkout-status.js?v=20260822-1';
+document.body.appendChild(checkoutStatusScript);
