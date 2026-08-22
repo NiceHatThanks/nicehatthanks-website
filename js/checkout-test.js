@@ -16,7 +16,9 @@
   document.body.classList.add('checkout-test-enabled');
   if (status) status.textContent = 'Sandbox checkout';
 
-  const maxCartUnits = 10;
+  // No arbitrary total-unit cap. Keep only generous technical sanity limits.
+  const maxLineQuantity = 99;
+  const maxCartLines = 20;
   const storageKey = 'nicehatthanksSandboxCartV2';
   const productInfo = {
     scoopy: { unitPence: 1599, label: 'Scoopy', needsColours: true },
@@ -143,8 +145,8 @@
     if (!key || !productInfo[item.product]) return;
 
     const index = cart.findIndex(line => itemKey(line) === key);
-    if (delta > 0 && totalUnits() >= maxCartUnits) {
-      showError(`Sandbox cart is currently limited to ${maxCartUnits} units per checkout.`);
+    if (index < 0 && delta > 0 && cart.length >= maxCartLines) {
+      showError(`A checkout can currently contain up to ${maxCartLines} different configurations.`);
       return;
     }
 
@@ -152,11 +154,11 @@
       const nextQuantity = cart[index].quantity + delta;
       if (nextQuantity <= 0) {
         cart.splice(index, 1);
-      } else {
+      } else if (nextQuantity <= maxLineQuantity) {
         cart[index] = {
           ...cart[index],
           ...item,
-          quantity: Math.min(maxCartUnits, nextQuantity),
+          quantity: nextQuantity,
         };
       }
     } else if (delta > 0) {
@@ -200,7 +202,7 @@
 
     const row = document.createElement('div');
     row.className = 'purchase-quantity-row';
-    row.innerHTML = '<span>Quantity</span>';
+    row.innerHTML = '<span>Qty</span>';
     row.appendChild(buildStepper(getItem).element);
     wrapper.appendChild(row);
     return wrapper;
@@ -222,7 +224,7 @@
       <strong>Custom mix</strong>
       <span class="custom-purchase-colours"></span>
     </div>
-    <div class="custom-purchase-quantity"><span>Quantity</span></div>`;
+    <div class="custom-purchase-quantity"><span>Qty</span></div>`;
   customPurchase.querySelector('.custom-purchase-quantity').appendChild(buildStepper(customItem).element);
   const customHeading = customBlock.querySelector('.config-heading-row');
   if (customHeading) customHeading.insertAdjacentElement('afterend', customPurchase);
@@ -244,7 +246,7 @@
   cartPanel.className = 'sandbox-cart-panel';
   cartPanel.innerHTML = `
     <div class="sandbox-cart-heading">
-      <div><strong>Your sandbox cart</strong><span>Up to ${maxCartUnits} units while we test checkout</span></div>
+      <div><strong>Your sandbox cart</strong><span>Multiple products and colour configurations supported</span></div>
       <b class="sandbox-cart-total">£0.00</b>
     </div>
     <div class="sandbox-cart-lines"></div>`;
@@ -278,7 +280,7 @@
       const quantity = quantityFor(control.getItem());
       control.value.textContent = String(quantity);
       control.minus.disabled = quantity <= 0;
-      control.plus.disabled = totalUnits() >= maxCartUnits;
+      control.plus.disabled = quantity >= maxLineQuantity;
     });
   }
 
@@ -287,7 +289,7 @@
     if (!cart.length) {
       const empty = document.createElement('p');
       empty.className = 'sandbox-cart-empty';
-      empty.textContent = 'Your cart is empty. Use the + controls beside any flavour, custom mix or board.';
+      empty.textContent = 'Your cart is empty. Use the + controls on any flavour, custom mix or board.';
       cartLines.appendChild(empty);
       return;
     }
@@ -312,7 +314,7 @@
       const cartStepper = buildStepper(() => line, false);
       cartStepper.registration.value.textContent = String(line.quantity);
       cartStepper.registration.minus.disabled = line.quantity <= 0;
-      cartStepper.registration.plus.disabled = totalUnits() >= maxCartUnits;
+      cartStepper.registration.plus.disabled = line.quantity >= maxLineQuantity;
       priceCopy.appendChild(cartStepper.element);
 
       row.append(copy, priceCopy);
@@ -346,14 +348,10 @@
     }
     if (!saved || !Array.isArray(saved.cart)) return;
 
-    let restoredUnits = 0;
-    cart = saved.cart.filter(line => {
-      if (!line || !productInfo[line.product]) return false;
-      const quantity = Number(line.quantity);
-      if (!Number.isInteger(quantity) || quantity < 1) return false;
-      restoredUnits += quantity;
-      return restoredUnits <= maxCartUnits;
-    }).map(line => ({ ...line, quantity: Math.min(maxCartUnits, Number(line.quantity)) }));
+    cart = saved.cart
+      .filter(line => line && productInfo[line.product] && Number.isInteger(Number(line.quantity)) && Number(line.quantity) >= 1)
+      .slice(0, maxCartLines)
+      .map(line => ({ ...line, quantity: Math.min(maxLineQuantity, Number(line.quantity)) }));
 
     const wantedVariant = saved.product === 'scoopy_compact' ? 'compact' : 'presence';
     const variantCard = variantCards.find(card => card.dataset.variant === wantedVariant);
@@ -415,14 +413,15 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    .checkout-test-enabled .purchase-card-wrap{min-width:0;display:grid;gap:7px}
-    .checkout-test-enabled .purchase-card-wrap .flavour-card,.checkout-test-enabled .purchase-card-wrap .board-card{width:100%}
-    .checkout-test-enabled .purchase-quantity-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 7px 4px;font-size:.78rem;font-weight:750;color:var(--muted)}
+    .checkout-test-enabled .purchase-card-wrap{min-width:0;display:grid;gap:0;border:1px solid var(--text);border-radius:20px;background:rgba(255,255,255,.12);overflow:hidden}
+    .checkout-test-enabled .purchase-card-wrap .flavour-card,.checkout-test-enabled .purchase-card-wrap .board-card{width:100%;border:0;border-radius:0;background:transparent;box-shadow:none}
+    .checkout-test-enabled .purchase-card-wrap:has(.flavour-card.is-selected){box-shadow:inset 0 0 0 1px var(--text)}
+    .checkout-test-enabled .purchase-quantity-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 13px 11px;border-top:1px solid var(--border);font-size:.78rem;font-weight:750;color:var(--muted)}
     .mini-quantity-stepper{display:grid;grid-template-columns:30px 30px 30px;align-items:center;border:1px solid var(--border);border-radius:999px;overflow:hidden;background:rgba(255,255,255,.42);color:var(--text)}
     .mini-quantity-stepper button,.mini-quantity-stepper span{display:grid;place-items:center;height:30px;border:0;background:transparent;color:inherit;font:inherit;font-weight:850;text-align:center}
     .mini-quantity-stepper button{cursor:pointer;font-size:1rem}
     .mini-quantity-stepper button:disabled{opacity:.28;cursor:not-allowed}
-    .custom-purchase-card{display:grid;grid-template-columns:92px minmax(0,1fr) auto;align-items:center;gap:16px;margin:0 0 20px;padding:15px;border:1px solid var(--border);border-radius:20px;background:rgba(255,255,255,.12)}
+    .custom-purchase-card{display:grid;grid-template-columns:92px minmax(0,1fr) auto;align-items:center;gap:16px;margin:0 0 20px;padding:15px;border:1px solid var(--text);border-radius:20px;background:rgba(255,255,255,.12)}
     .custom-purchase-preview{display:block;width:92px;height:92px;border-radius:15px;background:rgba(255,255,255,.14)}
     .custom-purchase-copy{display:flex;min-width:0;flex-direction:column;gap:6px}
     .custom-purchase-copy strong{font-size:.98rem}
@@ -448,6 +447,11 @@
     .checkout-test-enabled .buy-button{opacity:1;cursor:pointer}
     .checkout-test-enabled .buy-button:disabled{opacity:.48;cursor:not-allowed}
     .checkout-test-error{margin:10px 0 0!important;font-size:.88rem!important;font-weight:700;text-align:left!important;color:var(--text)!important}
+    @media(min-width:981px){
+      .checkout-test-enabled .shop-preview-wrap{display:none}
+      .checkout-test-enabled .shop-hero{display:block}
+      .checkout-test-enabled .shop-config{max-width:780px;margin-inline:auto}
+    }
     @media(max-width:640px){
       .custom-purchase-card{grid-template-columns:74px minmax(0,1fr);gap:12px}.custom-purchase-preview{width:74px;height:74px}.custom-purchase-quantity{grid-column:1/-1;flex-direction:row;align-items:center;justify-content:space-between}.sandbox-cart-line{grid-template-columns:1fr}.sandbox-cart-line-price{justify-content:space-between}.checkout-test-notice{align-items:flex-start;flex-direction:column}.checkout-test-notice span{text-align:left}
     }
