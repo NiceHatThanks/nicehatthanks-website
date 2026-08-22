@@ -1,19 +1,31 @@
 const products = {
   scoopy: {
-    priceId: 'price_1U7EVuDVcpaCmGAbAPcI9M0J',
+    unitAmount: 1599,
+    name: 'Scoopy',
     requiresColours: true,
+    imagePath: '/images/radar-node-assembled.png',
+    checkoutDescription: '32 × 44 × 16 mm · mmWave presence',
   },
   scoopy_compact: {
-    priceId: 'price_1U7EfjDVcpaCmGAbpKOiwC9e',
+    unitAmount: 1249,
+    name: 'Scoopy Compact',
     requiresColours: true,
+    imagePath: '/images/node-assembled.png',
+    checkoutDescription: '32 × 32 × 16 mm · no presence sensor',
   },
   pcba_mmwave: {
-    priceId: 'price_1U7EgcDVcpaCmGAbrJ3iSMwd',
+    unitAmount: 1149,
+    name: 'Populated PCBA + mmWave',
     requiresColours: false,
+    imagePath: '/images/radar-pcb.png',
+    checkoutDescription: 'Populated ESP32-C3 PCBA with LD2410C mmWave presence sensor. Enclosure, USB cable and power supply not included.',
   },
   pcba: {
-    priceId: 'price_1U7EhaDVcpaCmGAbzCSWdFWT',
+    unitAmount: 849,
+    name: 'Populated PCBA',
     requiresColours: false,
+    imagePath: '/images/seperate/pcb.png',
+    checkoutDescription: 'Populated ESP32-C3 PCBA without a presence sensor. Enclosure, USB cable and power supply not included.',
   },
 };
 
@@ -41,7 +53,6 @@ const allowedConfigurations = new Set([
 ]);
 
 // These are technical sanity limits, not a total-order cap.
-// The order may contain many units across multiple configurations.
 const maxLineQuantity = 99;
 const maxCartLines = 20;
 
@@ -95,7 +106,6 @@ function normaliseCart(body) {
 
     const normalised = {
       product: productKey,
-      priceId: product.priceId,
       quantity,
     };
 
@@ -149,6 +159,19 @@ function cartMetadata(cart) {
   return metadata;
 }
 
+function checkoutLineName(item) {
+  const product = products[item.product];
+  if (!product.requiresColours) return product.name;
+  return `${product.name} — ${item.configuration || 'Custom mix'}`;
+}
+
+function checkoutLineDescription(item) {
+  const product = products[item.product];
+  if (!product.requiresColours) return product.checkoutDescription;
+
+  return `${product.checkoutDescription} · Lid: ${item.colours.lid} · Base: ${item.colours.base} · Left button: ${item.colours.leftButton} · Right button: ${item.colours.rightButton}`;
+}
+
 async function createCheckoutSession(request, env) {
   if (!env.STRIPE_SECRET_KEY) {
     return json({ error: 'Stripe is not configured.' }, 500);
@@ -179,10 +202,21 @@ async function createCheckoutSession(request, env) {
 
   params.set('mode', 'payment');
   params.set('origin_context', 'web');
+
   cart.items.forEach((item, index) => {
-    params.set(`line_items[${index}][price]`, item.priceId);
-    params.set(`line_items[${index}][quantity]`, String(item.quantity));
+    const product = products[item.product];
+    const linePrefix = `line_items[${index}]`;
+
+    // Price and display data are built here on the trusted Worker. The browser
+    // only supplies product/configuration selections and cannot set the price.
+    params.set(`${linePrefix}[price_data][currency]`, 'gbp');
+    params.set(`${linePrefix}[price_data][unit_amount]`, String(product.unitAmount));
+    params.set(`${linePrefix}[price_data][product_data][name]`, checkoutLineName(item));
+    params.set(`${linePrefix}[price_data][product_data][description]`, checkoutLineDescription(item));
+    params.set(`${linePrefix}[price_data][product_data][images][0]`, new URL(product.imagePath, origin).href);
+    params.set(`${linePrefix}[quantity]`, String(item.quantity));
   });
+
   params.set('shipping_address_collection[allowed_countries][0]', 'GB');
   params.set('success_url', `${origin}/shop.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${origin}/shop.html?checkoutTest=1&checkout=cancelled`);
