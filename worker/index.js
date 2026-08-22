@@ -199,7 +199,7 @@ function previewUrl(item, origin) {
   }
 
   const url = new URL('/api/product-preview.svg', origin);
-  url.searchParams.set('v', '4');
+  url.searchParams.set('v', '5');
   url.searchParams.set('product', item.product);
   url.searchParams.set('lid', item.colours.lid);
   url.searchParams.set('base', item.colours.base);
@@ -287,12 +287,14 @@ async function productPreviewSvg(request, env) {
   </defs>
   <rect width="640" height="640" rx="42" fill="#F5F0E6"/>
   <g clip-path="url(#frame)">
-    <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
-    <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#baseTint)"/>
-    <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#lidTint)"/>
-    <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#leftTint)"/>
-    <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#rightTint)"/>
-    <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+    <g transform="translate(320 320) scale(2.15) translate(-320 -320)">
+      <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+      <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#baseTint)"/>
+      <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#lidTint)"/>
+      <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#leftTint)"/>
+      <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#rightTint)"/>
+      <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+    </g>
   </g>
 </svg>`;
 
