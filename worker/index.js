@@ -40,25 +40,6 @@ const products = {
   },
 };
 
-const previewLayers = {
-  scoopy: {
-    pcb: '/images/seperate/radar-pcb.png',
-    base: '/images/seperate/radar-base.png',
-    lid: '/images/seperate/radar-lid.png',
-    lightPipes: '/images/seperate/radar-lightPipes.png',
-    button1: '/images/seperate/radar-button1.png',
-    button2: '/images/seperate/radar-button2.png',
-  },
-  scoopy_compact: {
-    pcb: '/images/seperate/pcb.png',
-    base: '/images/seperate/base.png',
-    lid: '/images/seperate/lid-noLightPipes.PNG',
-    lightPipes: '/images/seperate/lightPipes.png',
-    button1: '/images/seperate/button1.png',
-    button2: '/images/seperate/button2.png',
-  },
-};
-
 const allowedColours = new Set(Object.keys(colourHex));
 
 const allowedConfigurations = new Set([
@@ -199,7 +180,7 @@ function previewUrl(item, origin) {
   }
 
   const url = new URL('/api/product-preview.svg', origin);
-  url.searchParams.set('v', '2');
+  url.searchParams.set('v', '3');
   url.searchParams.set('product', item.product);
   url.searchParams.set('lid', item.colours.lid);
   url.searchParams.set('base', item.colours.base);
@@ -208,49 +189,18 @@ function previewUrl(item, origin) {
   return url.href;
 }
 
-function colourMatrixFilter(id, colourName) {
-  const hex = colourHex[colourName];
+function darker(hex, amount = 0.18) {
   const red = Number.parseInt(hex.slice(1, 3), 16);
   const green = Number.parseInt(hex.slice(3, 5), 16);
   const blue = Number.parseInt(hex.slice(5, 7), 16);
-
-  const redOffset = ((red - 108) / 255).toFixed(6);
-  const greenOffset = ((green - 108) / 255).toFixed(6);
-  const blueOffset = ((blue - 108) / 255).toFixed(6);
-
-  return `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.153072 0.514944 0.051984 0 ${redOffset} 0.153072 0.514944 0.051984 0 ${greenOffset} 0.153072 0.514944 0.051984 0 ${blueOffset} 0 0 0 1 0"/></filter>`;
+  const scale = 1 - amount;
+  return `rgb(${Math.round(red * scale)} ${Math.round(green * scale)} ${Math.round(blue * scale)})`;
 }
 
-function bytesToBase64(bytes) {
-  let binary = '';
-  const chunkSize = 0x8000;
-  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
-  }
-  return btoa(binary);
-}
-
-async function assetDataUrl(path, request, env) {
-  const assetUrl = new URL(path, request.url);
-  const assetRequest = new Request(assetUrl, { method: 'GET' });
-  const response = env.ASSETS
-    ? await env.ASSETS.fetch(assetRequest)
-    : await fetch(assetRequest);
-
-  if (!response.ok) {
-    throw new Error(`Unable to load preview asset: ${path}`);
-  }
-
-  const contentType = response.headers.get('Content-Type') || 'image/png';
-  const bytes = new Uint8Array(await response.arrayBuffer());
-  return `data:${contentType};base64,${bytesToBase64(bytes)}`;
-}
-
-async function productPreviewSvg(request, env) {
+function productPreviewSvg(request) {
   const url = new URL(request.url);
   const productKey = url.searchParams.get('product') || '';
-  const layers = previewLayers[productKey];
-  if (!layers) {
+  if (productKey !== 'scoopy' && productKey !== 'scoopy_compact') {
     return new Response('Unknown product', { status: 404 });
   }
 
@@ -265,32 +215,47 @@ async function productPreviewSvg(request, env) {
     return new Response('Invalid colours', { status: 400 });
   }
 
-  let embedded;
-  try {
-    const entries = await Promise.all(
-      Object.entries(layers).map(async ([key, path]) => [key, await assetDataUrl(path, request, env)]),
-    );
-    embedded = Object.fromEntries(entries);
-  } catch (error) {
-    console.error('Unable to build checkout preview', error);
-    return new Response('Unable to build preview', { status: 502 });
-  }
+  const lid = colourHex[colours.lid];
+  const base = colourHex[colours.base];
+  const leftButton = colourHex[colours.leftButton];
+  const rightButton = colourHex[colours.rightButton];
+  const isCompact = productKey === 'scoopy_compact';
+
+  // Checkout thumbnails are tiny, so use a clean vector representation that
+  // fills the frame and shows the selected enclosure/button colours clearly.
+  const body = isCompact
+    ? { x: 112, y: 118, width: 416, height: 416, radius: 78 }
+    : { x: 132, y: 82, width: 376, height: 486, radius: 74 };
+  const lidInset = 18;
+  const lidHeight = isCompact ? 342 : 405;
+  const buttonY = isCompact ? 325 : 346;
+  const buttonRadius = isCompact ? 48 : 45;
+  const leftX = isCompact ? 245 : 246;
+  const rightX = isCompact ? 395 : 394;
+  const ledY = isCompact ? 228 : 236;
 
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
   <defs>
-    ${colourMatrixFilter('baseTint', colours.base)}
-    ${colourMatrixFilter('lidTint', colours.lid)}
-    ${colourMatrixFilter('leftTint', colours.leftButton)}
-    ${colourMatrixFilter('rightTint', colours.rightButton)}
+    <filter id="shadow" x="-30%" y="-30%" width="160%" height="180%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#1C211B" flood-opacity="0.24"/>
+    </filter>
+    <linearGradient id="baseShade" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${base}"/>
+      <stop offset="1" stop-color="${darker(base, 0.16)}"/>
+    </linearGradient>
   </defs>
-  <rect width="640" height="640" rx="42" fill="#F5F0E6"/>
-  <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
-  <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#baseTint)"/>
-  <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#lidTint)"/>
-  <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#leftTint)"/>
-  <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#rightTint)"/>
-  <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
+  <rect width="640" height="640" rx="44" fill="#F5F0E6"/>
+  <g filter="url(#shadow)">
+    <rect x="${body.x}" y="${body.y + 24}" width="${body.width}" height="${body.height}" rx="${body.radius}" fill="url(#baseShade)" stroke="#1C211B" stroke-width="8"/>
+    <rect x="${body.x + lidInset}" y="${body.y}" width="${body.width - lidInset * 2}" height="${lidHeight}" rx="${body.radius - 16}" fill="${lid}" stroke="#1C211B" stroke-width="8"/>
+    <circle cx="${leftX}" cy="${buttonY}" r="${buttonRadius}" fill="${leftButton}" stroke="#1C211B" stroke-width="8"/>
+    <circle cx="${rightX}" cy="${buttonY}" r="${buttonRadius}" fill="${rightButton}" stroke="#1C211B" stroke-width="8"/>
+    <circle cx="278" cy="${ledY}" r="10" fill="#F5F0E6" stroke="#1C211B" stroke-width="5"/>
+    <circle cx="320" cy="${ledY}" r="10" fill="#F5F0E6" stroke="#1C211B" stroke-width="5"/>
+    <circle cx="362" cy="${ledY}" r="10" fill="#F5F0E6" stroke="#1C211B" stroke-width="5"/>
+    ${isCompact ? '' : '<rect x="246" y="450" width="148" height="34" rx="17" fill="#1C211B" opacity="0.12"/>'}
+  </g>
 </svg>`;
 
   return new Response(svg, {
@@ -455,7 +420,7 @@ export default {
       if (request.method !== 'GET') {
         return new Response('Method not allowed', { status: 405 });
       }
-      return productPreviewSvg(request, env);
+      return productPreviewSvg(request);
     }
 
     if (url.pathname === '/api/checkout') {
