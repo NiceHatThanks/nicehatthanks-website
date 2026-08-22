@@ -1,3 +1,14 @@
+const colourHex = {
+  Strawberry: '#D789A6',
+  Pistachio: '#7D947E',
+  Vanilla: '#E9E1CF',
+  Fudge: '#B77A4C',
+  Ash: '#666862',
+  Nero: '#242622',
+  Bubblegum: '#A9C9DE',
+  Violet: '#B9A8CE',
+};
+
 const products = {
   scoopy: {
     unitAmount: 1599,
@@ -29,16 +40,26 @@ const products = {
   },
 };
 
-const allowedColours = new Set([
-  'Strawberry',
-  'Pistachio',
-  'Vanilla',
-  'Fudge',
-  'Ash',
-  'Nero',
-  'Bubblegum',
-  'Violet',
-]);
+const previewLayers = {
+  scoopy: {
+    pcb: '/images/seperate/radar-pcb.png',
+    base: '/images/seperate/radar-base.png',
+    lid: '/images/seperate/radar-lid.png',
+    lightPipes: '/images/seperate/radar-lightPipes.png',
+    button1: '/images/seperate/radar-button1.png',
+    button2: '/images/seperate/radar-button2.png',
+  },
+  scoopy_compact: {
+    pcb: '/images/seperate/pcb.png',
+    base: '/images/seperate/base.png',
+    lid: '/images/seperate/lid-noLightPipes.PNG',
+    lightPipes: '/images/seperate/lightPipes.png',
+    button1: '/images/seperate/button1.png',
+    button2: '/images/seperate/button2.png',
+  },
+};
+
+const allowedColours = new Set(Object.keys(colourHex));
 
 const allowedConfigurations = new Set([
   'Strawberry',
@@ -162,7 +183,7 @@ function cartMetadata(cart) {
 function checkoutLineName(item) {
   const product = products[item.product];
   if (!product.requiresColours) return product.name;
-  return `${product.name} — ${item.configuration || 'Custom mix'}`;
+  return `${product.name} - ${item.configuration || 'Custom mix'}`;
 }
 
 function checkoutLineDescription(item) {
@@ -170,6 +191,82 @@ function checkoutLineDescription(item) {
   if (!product.requiresColours) return product.checkoutDescription;
 
   return `${product.checkoutDescription} · Lid: ${item.colours.lid} · Base: ${item.colours.base} · Left button: ${item.colours.leftButton} · Right button: ${item.colours.rightButton}`;
+}
+
+function previewUrl(item, origin) {
+  const product = products[item.product];
+  if (!product.requiresColours) {
+    return new URL(product.imagePath, origin).href;
+  }
+
+  const url = new URL('/api/product-preview.svg', origin);
+  url.searchParams.set('product', item.product);
+  url.searchParams.set('lid', item.colours.lid);
+  url.searchParams.set('base', item.colours.base);
+  url.searchParams.set('leftButton', item.colours.leftButton);
+  url.searchParams.set('rightButton', item.colours.rightButton);
+  return url.href;
+}
+
+function colourMatrixFilter(id, colourName) {
+  const hex = colourHex[colourName];
+  const red = Number.parseInt(hex.slice(1, 3), 16);
+  const green = Number.parseInt(hex.slice(3, 5), 16);
+  const blue = Number.parseInt(hex.slice(5, 7), 16);
+
+  // Match the browser preview's luminance-preserving tint closely. shop.js uses
+  // 72% of the source luminance variation around a roughly mid-grey reference.
+  const redOffset = ((red - 108) / 255).toFixed(6);
+  const greenOffset = ((green - 108) / 255).toFixed(6);
+  const blueOffset = ((blue - 108) / 255).toFixed(6);
+
+  return `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.153072 0.514944 0.051984 0 ${redOffset} 0.153072 0.514944 0.051984 0 ${greenOffset} 0.153072 0.514944 0.051984 0 ${blueOffset} 0 0 0 1 0"/></filter>`;
+}
+
+function productPreviewSvg(request) {
+  const url = new URL(request.url);
+  const productKey = url.searchParams.get('product') || '';
+  const layers = previewLayers[productKey];
+  if (!layers) {
+    return new Response('Unknown product', { status: 404 });
+  }
+
+  const colours = {
+    lid: url.searchParams.get('lid') || '',
+    base: url.searchParams.get('base') || '',
+    leftButton: url.searchParams.get('leftButton') || '',
+    rightButton: url.searchParams.get('rightButton') || '',
+  };
+
+  if (Object.values(colours).some(colour => !allowedColours.has(colour))) {
+    return new Response('Invalid colours', { status: 400 });
+  }
+
+  const asset = path => new URL(path, url.origin).href.replaceAll('&', '&amp;');
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+  <defs>
+    ${colourMatrixFilter('baseTint', colours.base)}
+    ${colourMatrixFilter('lidTint', colours.lid)}
+    ${colourMatrixFilter('leftTint', colours.leftButton)}
+    ${colourMatrixFilter('rightTint', colours.rightButton)}
+  </defs>
+  <rect width="640" height="640" rx="42" fill="#F5F0E6"/>
+  <image href="${asset(layers.pcb)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
+  <image href="${asset(layers.base)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#baseTint)"/>
+  <image href="${asset(layers.lid)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#lidTint)"/>
+  <image href="${asset(layers.button1)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#leftTint)"/>
+  <image href="${asset(layers.button2)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#rightTint)"/>
+  <image href="${asset(layers.lightPipes)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
+</svg>`;
+
+  return new Response(svg, {
+    headers: {
+      'Content-Type': 'image/svg+xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=31536000, immutable',
+      'X-Content-Type-Options': 'nosniff',
+    },
+  });
 }
 
 async function createCheckoutSession(request, env) {
@@ -213,7 +310,7 @@ async function createCheckoutSession(request, env) {
     params.set(`${linePrefix}[price_data][unit_amount]`, String(product.unitAmount));
     params.set(`${linePrefix}[price_data][product_data][name]`, checkoutLineName(item));
     params.set(`${linePrefix}[price_data][product_data][description]`, checkoutLineDescription(item));
-    params.set(`${linePrefix}[price_data][product_data][images][0]`, new URL(product.imagePath, origin).href);
+    params.set(`${linePrefix}[price_data][product_data][images][0]`, previewUrl(item, origin));
     params.set(`${linePrefix}[quantity]`, String(item.quantity));
   });
 
@@ -324,6 +421,13 @@ export default {
 
     if (url.pathname === '/api/health') {
       return json({ ok: true, service: 'nicehatthanks-checkout', mode: 'test' });
+    }
+
+    if (url.pathname === '/api/product-preview.svg') {
+      if (request.method !== 'GET') {
+        return new Response('Method not allowed', { status: 405 });
+      }
+      return productPreviewSvg(request);
     }
 
     if (url.pathname === '/api/checkout') {
