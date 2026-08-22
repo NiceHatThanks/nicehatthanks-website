@@ -1,8 +1,10 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nicehatthanks-website",
-  "compatibility_date": "2026-08-19",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-08-22",
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "run_worker_first": ["/api/*"]
   }
 }
