@@ -1,7 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "nicehatthanks-website",
-  "main": "worker/app.js",
+  "main": "worker/router.js",
   "compatibility_date": "2026-08-22",
   "assets": {
     "directory": ".",
