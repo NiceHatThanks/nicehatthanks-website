@@ -142,7 +142,8 @@ function cartMetadata(cart) {
     if (item.configuration) line.configuration = item.configuration;
     if (item.colours) line.colours = item.colours;
 
-    metadata[`line_${index + 1}`] = JSON.stringify(line);
+    const lineNumber = String(index + 1).padStart(2, '0');
+    metadata[`line_${lineNumber}`] = JSON.stringify(line);
   });
 
   return metadata;
@@ -211,7 +212,8 @@ function readCartFromMetadata(metadata = {}) {
 
   if (Number.isInteger(lineCount) && lineCount > 0 && lineCount <= maxCartLines) {
     for (let index = 1; index <= lineCount; index += 1) {
-      const raw = metadata[`line_${index}`];
+      const paddedKey = `line_${String(index).padStart(2, '0')}`;
+      const raw = metadata[paddedKey] ?? metadata[`line_${index}`];
       if (!raw) continue;
       try {
         const item = JSON.parse(raw);
