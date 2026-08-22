@@ -22,7 +22,7 @@
   else document.body.prepend(banner);
 
   if (checkoutState === 'cancelled') {
-    banner.innerHTML = '<strong>Checkout cancelled</strong>No payment was taken. Your Scoopy configuration is still on this page.';
+    banner.innerHTML = '<strong>Checkout cancelled</strong>No payment was taken. Your sandbox cart is still available on this page.';
     return;
   }
 
@@ -44,17 +44,14 @@
         throw new Error(data.error || 'Payment is not marked as paid.');
       }
 
-      const quantity = data.metadata?.quantity || '1';
-      const productNames = {
-        scoopy: 'Scoopy',
-        scoopy_compact: 'Scoopy Compact',
-        pcba_mmwave: 'Populated PCBA + mmWave',
-        pcba: 'Populated PCBA',
-      };
-      const productName = productNames[data.metadata?.product_key] || 'order';
+      const units = Number(data.cartUnits || data.metadata?.cart_units || data.metadata?.quantity || 1);
+      const lines = Array.isArray(data.cart) && data.cart.length
+        ? data.cart.length
+        : Number(data.metadata?.cart_line_count || 1);
       const emailText = data.customerEmail ? ` A Stripe confirmation was sent to ${data.customerEmail}.` : '';
+      const configurationText = lines > 1 ? ` across ${lines} configurations` : '';
 
-      banner.innerHTML = `<strong>Sandbox order successful</strong>Stripe verified payment for ${quantity} × ${productName}.${emailText} No real money was taken.`;
+      banner.innerHTML = `<strong>Sandbox order successful</strong>Stripe verified payment for ${units} item${units === 1 ? '' : 's'}${configurationText}.${emailText} No real money was taken.`;
     })
     .catch(error => {
       console.error('Unable to verify sandbox checkout', error);
