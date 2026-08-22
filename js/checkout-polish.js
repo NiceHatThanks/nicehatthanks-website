@@ -5,17 +5,20 @@
 
   const style = document.createElement('style');
   style.textContent = `
-    @media(min-width:641px){
-      .checkout-test-enabled .flavour-card{grid-template-columns:94px minmax(0,1fr);min-height:154px;gap:20px;padding:20px}
-      .checkout-test-enabled .mini-device{width:82px;height:82px}
-      .checkout-test-enabled .mini-device i{inset:6px 6px 22px;border-radius:20px;box-shadow:0 17px 0 -2px var(--mini-base)}
-      .checkout-test-enabled .mini-device i::before,.checkout-test-enabled .mini-device i::after{top:24px;width:16px;height:16px}
-      .checkout-test-enabled .mini-device i::before{left:14px}
-      .checkout-test-enabled .mini-device i::after{right:14px}
-      .checkout-test-enabled .flavour-card strong{font-size:1rem}
-      .checkout-test-enabled .custom-purchase-card{grid-template-columns:132px minmax(0,1fr) auto;gap:20px;padding:18px}
-      .checkout-test-enabled .custom-purchase-preview{width:132px;height:132px;border-radius:18px}
+    @media(min-width:981px){
+      .checkout-test-enabled .flavour-card{grid-template-columns:142px minmax(0,1fr);min-height:170px;gap:22px;padding:18px}
+      .checkout-test-enabled .flavour-preview{width:134px;height:134px;border-radius:18px}
+      .checkout-test-enabled .flavour-card strong{font-size:1.02rem}
+      .checkout-test-enabled .custom-purchase-card{grid-template-columns:150px minmax(0,1fr) auto;gap:22px;padding:18px}
+      .checkout-test-enabled .custom-purchase-preview{width:150px;height:150px;border-radius:20px}
       .checkout-test-enabled .custom-purchase-copy strong{font-size:1.05rem}
+    }
+
+    @media(min-width:641px) and (max-width:980px){
+      .checkout-test-enabled .flavour-card{grid-template-columns:108px minmax(0,1fr);min-height:142px;gap:18px;padding:16px}
+      .checkout-test-enabled .flavour-preview{width:102px;height:102px;border-radius:16px}
+      .checkout-test-enabled .custom-purchase-card{grid-template-columns:120px minmax(0,1fr) auto;gap:18px;padding:16px}
+      .checkout-test-enabled .custom-purchase-preview{width:120px;height:120px;border-radius:18px}
     }
 
     @media(max-width:640px){
