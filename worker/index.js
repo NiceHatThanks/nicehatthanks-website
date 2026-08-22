@@ -28,6 +28,21 @@ const allowedColours = new Set([
   'Violet',
 ]);
 
+const allowedConfigurations = new Set([
+  'Strawberry',
+  'Pistachio',
+  'Vanilla',
+  'Fudge',
+  'Ash',
+  'Nero',
+  'Sprinkle',
+  'Double Fudge',
+  'Custom mix',
+]);
+
+const maxCartUnits = 10;
+const maxCartLines = 10;
+
 function json(data, status = 200) {
   return Response.json(data, { status });
 }
@@ -41,6 +56,97 @@ function addMetadata(params, metadata) {
     params.set(`metadata[${key}]`, String(value));
     params.set(`payment_intent_data[metadata][${key}]`, String(value));
   });
+}
+
+function normaliseCart(body) {
+  const sourceItems = Array.isArray(body.items)
+    ? body.items
+    : [{
+        product: body.product,
+        quantity: body.quantity,
+        colours: body.colours,
+        configuration: body.configuration,
+      }];
+
+  if (sourceItems.length < 1 || sourceItems.length > maxCartLines) {
+    throw new Error(`Cart must contain between 1 and ${maxCartLines} configurations.`);
+  }
+
+  let totalUnits = 0;
+  const items = sourceItems.map((item, index) => {
+    if (!item || typeof item !== 'object') {
+      throw new Error(`Invalid cart item ${index + 1}.`);
+    }
+
+    const productKey = typeof item.product === 'string' ? item.product : '';
+    const product = products[productKey];
+    if (!product) {
+      throw new Error(`Unknown product on cart item ${index + 1}.`);
+    }
+
+    const quantity = Number(item.quantity ?? 1);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > maxCartUnits) {
+      throw new Error(`Quantity on cart item ${index + 1} must be a whole number from 1 to ${maxCartUnits}.`);
+    }
+
+    totalUnits += quantity;
+    if (totalUnits > maxCartUnits) {
+      throw new Error(`Cart is limited to ${maxCartUnits} units per checkout.`);
+    }
+
+    const normalised = {
+      product: productKey,
+      priceId: product.priceId,
+      quantity,
+    };
+
+    if (product.requiresColours) {
+      const colours = item.colours ?? {};
+      const selections = {
+        lid: colours.lid,
+        base: colours.base,
+        leftButton: colours.leftButton,
+        rightButton: colours.rightButton,
+      };
+
+      for (const [part, colour] of Object.entries(selections)) {
+        if (typeof colour !== 'string' || !allowedColours.has(colour)) {
+          throw new Error(`Invalid colour for ${part} on cart item ${index + 1}.`);
+        }
+      }
+
+      const requestedConfiguration = typeof item.configuration === 'string' ? item.configuration : 'Custom mix';
+      normalised.configuration = allowedConfigurations.has(requestedConfiguration)
+        ? requestedConfiguration
+        : 'Custom mix';
+      normalised.colours = selections;
+    }
+
+    return normalised;
+  });
+
+  return { items, totalUnits };
+}
+
+function cartMetadata(cart) {
+  const metadata = {
+    cart_line_count: cart.items.length,
+    cart_units: cart.totalUnits,
+  };
+
+  cart.items.forEach((item, index) => {
+    const line = {
+      product: item.product,
+      quantity: item.quantity,
+    };
+
+    if (item.configuration) line.configuration = item.configuration;
+    if (item.colours) line.colours = item.colours;
+
+    metadata[`line_${index + 1}`] = JSON.stringify(line);
+  });
+
+  return metadata;
 }
 
 async function createCheckoutSession(request, env) {
@@ -60,37 +166,11 @@ async function createCheckoutSession(request, env) {
     return json({ error: 'Invalid JSON request.' }, 400);
   }
 
-  const productKey = typeof body.product === 'string' ? body.product : '';
-  const product = products[productKey];
-  if (!product) {
-    return json({ error: 'Unknown product.' }, 400);
-  }
-
-  const quantity = Number(body.quantity ?? 1);
-  if (!Number.isInteger(quantity) || quantity < 1 || quantity > 10) {
-    return json({ error: 'Quantity must be a whole number from 1 to 10.' }, 400);
-  }
-
-  const metadata = {
-    product_key: productKey,
-    quantity,
-  };
-
-  if (product.requiresColours) {
-    const colours = body.colours ?? {};
-    const selections = {
-      lid: colours.lid,
-      base: colours.base,
-      left_button: colours.leftButton,
-      right_button: colours.rightButton,
-    };
-
-    for (const [part, colour] of Object.entries(selections)) {
-      if (typeof colour !== 'string' || !allowedColours.has(colour)) {
-        return json({ error: `Invalid colour for ${part}.` }, 400);
-      }
-      metadata[part] = colour;
-    }
+  let cart;
+  try {
+    cart = normaliseCart(body);
+  } catch (error) {
+    return json({ error: error.message || 'Invalid cart.' }, 400);
   }
 
   const requestUrl = new URL(request.url);
@@ -99,12 +179,14 @@ async function createCheckoutSession(request, env) {
 
   params.set('mode', 'payment');
   params.set('origin_context', 'web');
-  params.set('line_items[0][price]', product.priceId);
-  params.set('line_items[0][quantity]', String(quantity));
+  cart.items.forEach((item, index) => {
+    params.set(`line_items[${index}][price]`, item.priceId);
+    params.set(`line_items[${index}][quantity]`, String(item.quantity));
+  });
   params.set('shipping_address_collection[allowed_countries][0]', 'GB');
-  params.set('success_url', `${origin}/shop.html?checkoutTest=1&checkout=success&session_id={CHECKOUT_SESSION_ID}`);
+  params.set('success_url', `${origin}/shop.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${origin}/shop.html?checkoutTest=1&checkout=cancelled`);
-  addMetadata(params, metadata);
+  addMetadata(params, cartMetadata(cart));
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
@@ -122,6 +204,44 @@ async function createCheckoutSession(request, env) {
   }
 
   return json({ id: stripeData.id, url: stripeData.url });
+}
+
+function readCartFromMetadata(metadata = {}) {
+  const lineCount = Number.parseInt(metadata.cart_line_count || '0', 10);
+  const items = [];
+
+  if (Number.isInteger(lineCount) && lineCount > 0 && lineCount <= maxCartLines) {
+    for (let index = 1; index <= lineCount; index += 1) {
+      const raw = metadata[`line_${index}`];
+      if (!raw) continue;
+      try {
+        const item = JSON.parse(raw);
+        if (item && typeof item === 'object') items.push(item);
+      } catch {
+        // Ignore malformed metadata entries; the payment status can still be verified.
+      }
+    }
+  }
+
+  // Backwards compatibility with the first single-item sandbox tests.
+  if (!items.length && metadata.product_key) {
+    const item = {
+      product: metadata.product_key,
+      quantity: Number.parseInt(metadata.quantity || '1', 10) || 1,
+    };
+    if (metadata.lid) {
+      item.configuration = 'Custom mix';
+      item.colours = {
+        lid: metadata.lid,
+        base: metadata.base,
+        leftButton: metadata.left_button,
+        rightButton: metadata.right_button,
+      };
+    }
+    items.push(item);
+  }
+
+  return items;
 }
 
 async function getCheckoutSession(request, env) {
@@ -147,6 +267,9 @@ async function getCheckoutSession(request, env) {
     return json({ error: 'Unable to verify checkout.' }, 502);
   }
 
+  const cart = readCartFromMetadata(stripeData.metadata ?? {});
+  const cartUnits = cart.reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+
   return json({
     id: stripeData.id,
     paymentStatus: stripeData.payment_status,
@@ -155,6 +278,8 @@ async function getCheckoutSession(request, env) {
     amountTotal: stripeData.amount_total,
     currency: stripeData.currency,
     metadata: stripeData.metadata ?? {},
+    cart,
+    cartUnits,
   });
 }
 
