@@ -76,11 +76,11 @@
     }
   }
 
+  // Capture phase is intentional: the quantity controls stop propagation so a
+  // normal bubbling listener never sees their clicks.
   document.body.addEventListener('click', event => {
     const randomiseButton = event.target.closest('.randomise-button');
     if (randomiseButton) {
-      // shop.js updates the main render first. Re-selecting the current variant then
-      // lets checkout-test.js refresh its quantity binding for the new custom mix.
       requestAnimationFrame(() => {
         const selectedVariant = document.querySelector('.variant-picker .variant-card.is-selected');
         if (selectedVariant) selectedVariant.click();
@@ -93,12 +93,10 @@
     if (quantityButton) {
       const flavourCard = quantityButton.closest('.flavour-purchase')?.querySelector('.flavour-card');
       if (flavourCard) {
-        // The quantity button stops the card click from bubbling. Explicitly select
-        // the flavour so the large mobile preview matches the item being adjusted.
         requestAnimationFrame(() => flavourCard.click());
       }
     }
-  });
+  }, true);
 
   tidyCartTitles();
   new MutationObserver(tidyCartTitles).observe(document.body, { childList: true, subtree: true });
