@@ -180,7 +180,8 @@ function buildOrderEmail(session) {
       </table>
 
       <p style="font-size:16px;line-height:1.6;margin:26px 0 0">I'll send you another email as soon as your order has been dispatched.</p>
-      <p style="font-size:16px;line-height:1.6;margin:18px 0 0">Thanks again,<br><strong>NiceHatThanks</strong></p>
+      <p style="font-size:16px;line-height:1.6;margin:18px 0 0">While you're waiting, take a look at the <a href="https://nicehatthanks.com/setup/" style="color:#1C211B;font-weight:700">setup guide</a> so you're ready to get going as soon as it arrives.</p>
+      <p style="font-size:16px;line-height:1.6;margin:18px 0 0">Thanks again,<br><strong>Zach</strong></p>
     </div>
     <p style="margin:16px 4px 0;color:#666862;font-size:12px;line-height:1.5">Questions about your order? Reply to this email and it'll reach me at orders@nicehatthanks.com.</p>
   </div>
@@ -198,8 +199,11 @@ Total: ${formatGbp(total)}
 
 I'll send you another email as soon as your order has been dispatched.
 
+While you're waiting, take a look at the setup guide so you're ready to get going as soon as it arrives:
+https://nicehatthanks.com/setup/
+
 Thanks again,
-NiceHatThanks
+Zach
 
 Questions about your order? Reply to this email and it'll reach me at orders@nicehatthanks.com.`;
 
