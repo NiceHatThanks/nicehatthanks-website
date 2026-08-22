@@ -50,7 +50,7 @@
         const suffix = ` · ${productName}`;
         if (text.endsWith(suffix)) {
           const configuration = text.slice(0, -suffix.length);
-          title.textContent = `${productName} — ${configuration}`;
+          title.textContent = `${productName} - ${configuration}`;
           break;
         }
       }
