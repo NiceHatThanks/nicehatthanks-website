@@ -166,10 +166,18 @@ function buildOrderEmail(session) {
         <tbody>${htmlLines}</tbody>
       </table>
 
-      <div style="margin-top:18px;font-size:14px;line-height:1.7">
-        <div style="display:flex;justify-content:space-between;gap:20px"><span>${escapeHtml(shippingService)}</span><strong>${formatGbp(shippingAmount)}</strong></div>
-        <div style="display:flex;justify-content:space-between;gap:20px;margin-top:8px;font-size:17px"><strong>Total</strong><strong>${formatGbp(total)}</strong></div>
-      </div>
+      <table role="presentation" style="width:100%;border-collapse:collapse;margin-top:18px;font-size:14px;line-height:1.7">
+        <tbody>
+          <tr>
+            <td style="padding:0 20px 0 0;vertical-align:top">${escapeHtml(shippingService)}</td>
+            <td style="padding:0;vertical-align:top;text-align:right;white-space:nowrap"><strong>${formatGbp(shippingAmount)}</strong></td>
+          </tr>
+          <tr>
+            <td style="padding:8px 20px 0 0;vertical-align:top;font-size:17px"><strong>Total</strong></td>
+            <td style="padding:8px 0 0;vertical-align:top;text-align:right;white-space:nowrap;font-size:17px"><strong>${formatGbp(total)}</strong></td>
+          </tr>
+        </tbody>
+      </table>
 
       <p style="font-size:16px;line-height:1.6;margin:26px 0 0">I'll send you another email as soon as your order has been dispatched.</p>
       <p style="font-size:16px;line-height:1.6;margin:18px 0 0">Thanks again,<br><strong>NiceHatThanks</strong></p>
