@@ -1,8 +1,5 @@
-// Sandbox-only visual polish layered after checkout-test.js.
+// Visual polish layered after checkout-test.js for both public and sandbox shop modes.
 (function () {
-  const params = new URLSearchParams(window.location.search);
-  if (params.get('checkoutTest') !== '1') return;
-
   const style = document.createElement('style');
   style.textContent = `
     .checkout-test-enabled .flavour-card[data-name="Nero"] .flavour-preview{
