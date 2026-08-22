@@ -40,8 +40,10 @@ const allowedConfigurations = new Set([
   'Custom mix',
 ]);
 
-const maxCartUnits = 10;
-const maxCartLines = 10;
+// These are technical sanity limits, not a total-order cap.
+// The order may contain many units across multiple configurations.
+const maxLineQuantity = 99;
+const maxCartLines = 20;
 
 function json(data, status = 200) {
   return Response.json(data, { status });
@@ -85,14 +87,11 @@ function normaliseCart(body) {
     }
 
     const quantity = Number(item.quantity ?? 1);
-    if (!Number.isInteger(quantity) || quantity < 1 || quantity > maxCartUnits) {
-      throw new Error(`Quantity on cart item ${index + 1} must be a whole number from 1 to ${maxCartUnits}.`);
+    if (!Number.isInteger(quantity) || quantity < 1 || quantity > maxLineQuantity) {
+      throw new Error(`Quantity on cart item ${index + 1} must be a whole number from 1 to ${maxLineQuantity}.`);
     }
 
     totalUnits += quantity;
-    if (totalUnits > maxCartUnits) {
-      throw new Error(`Cart is limited to ${maxCartUnits} units per checkout.`);
-    }
 
     const normalised = {
       product: productKey,
