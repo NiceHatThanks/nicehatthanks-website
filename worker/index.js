@@ -32,6 +32,10 @@ function json(data, status = 200) {
   return Response.json(data, { status });
 }
 
+function stripeIsTestMode(env) {
+  return typeof env.STRIPE_SECRET_KEY === 'string' && env.STRIPE_SECRET_KEY.startsWith('sk_test_');
+}
+
 function addMetadata(params, metadata) {
   Object.entries(metadata).forEach(([key, value]) => {
     params.set(`metadata[${key}]`, String(value));
@@ -45,7 +49,7 @@ async function createCheckoutSession(request, env) {
   }
 
   // This endpoint is intentionally sandbox-only while checkout is under development.
-  if (!env.STRIPE_SECRET_KEY.startsWith('sk_test_')) {
+  if (!stripeIsTestMode(env)) {
     return json({ error: 'Checkout is locked to Stripe test mode.' }, 500);
   }
 
@@ -120,6 +124,40 @@ async function createCheckoutSession(request, env) {
   return json({ id: stripeData.id, url: stripeData.url });
 }
 
+async function getCheckoutSession(request, env) {
+  if (!stripeIsTestMode(env)) {
+    return json({ error: 'Checkout verification is locked to Stripe test mode.' }, 500);
+  }
+
+  const url = new URL(request.url);
+  const sessionId = url.searchParams.get('session_id') ?? '';
+  if (!/^cs_test_[A-Za-z0-9_]+$/.test(sessionId)) {
+    return json({ error: 'Invalid checkout session.' }, 400);
+  }
+
+  const stripeResponse = await fetch(`https://api.stripe.com/v1/checkout/sessions/${encodeURIComponent(sessionId)}`, {
+    headers: {
+      Authorization: `Bearer ${env.STRIPE_SECRET_KEY}`,
+    },
+  });
+
+  const stripeData = await stripeResponse.json();
+  if (!stripeResponse.ok) {
+    console.error('Stripe Checkout Session lookup failed', stripeData);
+    return json({ error: 'Unable to verify checkout.' }, 502);
+  }
+
+  return json({
+    id: stripeData.id,
+    paymentStatus: stripeData.payment_status,
+    status: stripeData.status,
+    customerEmail: stripeData.customer_details?.email ?? null,
+    amountTotal: stripeData.amount_total,
+    currency: stripeData.currency,
+    metadata: stripeData.metadata ?? {},
+  });
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -133,6 +171,13 @@ export default {
         return json({ error: 'Method not allowed.' }, 405);
       }
       return createCheckoutSession(request, env);
+    }
+
+    if (url.pathname === '/api/checkout-session') {
+      if (request.method !== 'GET') {
+        return json({ error: 'Method not allowed.' }, 405);
+      }
+      return getCheckoutSession(request, env);
     }
 
     return new Response('Not found', { status: 404 });
