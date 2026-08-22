@@ -157,10 +157,59 @@ function normaliseCart(body) {
   return { items, totalUnits };
 }
 
-function cartMetadata(cart) {
+function cartSubtotalPence(cart) {
+  return cart.items.reduce((sum, item) => {
+    const product = products[item.product];
+    return sum + product.unitAmount * item.quantity;
+  }, 0);
+}
+
+function assembledUnits(cart) {
+  return cart.items.reduce((sum, item) => {
+    return sum + (products[item.product].requiresColours ? item.quantity : 0);
+  }, 0);
+}
+
+function shippingForCart(cart) {
+  const subtotalPence = cartSubtotalPence(cart);
+  const enclosedUnits = assembledUnits(cart);
+
+  if (enclosedUnits > 3) {
+    return {
+      code: 'tracked48_small_parcel',
+      displayName: 'Royal Mail Tracked 48 - Small Parcel',
+      amountPence: 365,
+      minimumDays: 2,
+      maximumDays: 3,
+    };
+  }
+
+  if (subtotalPence > 2000) {
+    return {
+      code: 'tracked48_large_letter',
+      displayName: 'Royal Mail Tracked 48 - Large Letter',
+      amountPence: 285,
+      minimumDays: 2,
+      maximumDays: 3,
+    };
+  }
+
+  return {
+    code: 'second_class_large_letter',
+    displayName: 'Royal Mail 2nd Class - Large Letter',
+    amountPence: 155,
+    minimumDays: 2,
+    maximumDays: 3,
+  };
+}
+
+function cartMetadata(cart, shipping) {
   const metadata = {
     cart_line_count: cart.items.length,
     cart_units: cart.totalUnits,
+    shipping_code: shipping.code,
+    shipping_service: shipping.displayName,
+    shipping_amount: shipping.amountPence,
   };
 
   cart.items.forEach((item, index) => {
@@ -313,6 +362,18 @@ async function productPreviewSvg(request, env) {
   });
 }
 
+function addShippingOption(params, shipping) {
+  const prefix = 'shipping_options[0][shipping_rate_data]';
+  params.set(`${prefix}[type]`, 'fixed_amount');
+  params.set(`${prefix}[fixed_amount][amount]`, String(shipping.amountPence));
+  params.set(`${prefix}[fixed_amount][currency]`, 'gbp');
+  params.set(`${prefix}[display_name]`, shipping.displayName);
+  params.set(`${prefix}[delivery_estimate][minimum][unit]`, 'business_day');
+  params.set(`${prefix}[delivery_estimate][minimum][value]`, String(shipping.minimumDays));
+  params.set(`${prefix}[delivery_estimate][maximum][unit]`, 'business_day');
+  params.set(`${prefix}[delivery_estimate][maximum][value]`, String(shipping.maximumDays));
+}
+
 async function createCheckoutSession(request, env) {
   if (!env.STRIPE_SECRET_KEY) {
     return json({ error: 'Stripe is not configured.' }, 500);
@@ -336,6 +397,7 @@ async function createCheckoutSession(request, env) {
     return json({ error: error.message || 'Invalid cart.' }, 400);
   }
 
+  const shipping = shippingForCart(cart);
   const requestUrl = new URL(request.url);
   const origin = requestUrl.origin;
   const params = new URLSearchParams();
@@ -355,9 +417,10 @@ async function createCheckoutSession(request, env) {
   });
 
   params.set('shipping_address_collection[allowed_countries][0]', 'GB');
+  addShippingOption(params, shipping);
   params.set('success_url', `${origin}/shop.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${origin}/shop.html?checkoutTest=1&checkout=cancelled`);
-  addMetadata(params, cartMetadata(cart));
+  addMetadata(params, cartMetadata(cart, shipping));
 
   const stripeResponse = await fetch('https://api.stripe.com/v1/checkout/sessions', {
     method: 'POST',
