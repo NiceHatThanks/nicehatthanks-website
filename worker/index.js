@@ -199,7 +199,7 @@ function previewUrl(item, origin) {
   }
 
   const url = new URL('/api/product-preview.svg', origin);
-  url.searchParams.set('v', '5');
+  url.searchParams.set('v', '6');
   url.searchParams.set('product', item.product);
   url.searchParams.set('lid', item.colours.lid);
   url.searchParams.set('base', item.colours.base);
@@ -265,6 +265,10 @@ async function productPreviewSvg(request, env) {
     return new Response('Invalid colours', { status: 400 });
   }
 
+  const previewBackground = Object.values(colours).includes('Nero')
+    ? '#F5F0E6'
+    : '#1C211B';
+
   let embedded;
   try {
     const entries = await Promise.all(
@@ -285,15 +289,17 @@ async function productPreviewSvg(request, env) {
     ${colourMatrixFilter('rightTint', colours.rightButton)}
     <clipPath id="frame"><rect width="640" height="640" rx="42"/></clipPath>
   </defs>
-  <rect width="640" height="640" rx="42" fill="#F5F0E6"/>
+  <rect width="640" height="640" rx="42" fill="${previewBackground}"/>
   <g clip-path="url(#frame)">
-    <g transform="translate(320 320) scale(2.15) translate(-320 -320)">
-      <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
-      <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#baseTint)"/>
-      <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#lidTint)"/>
-      <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#leftTint)"/>
-      <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#rightTint)"/>
-      <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+    <g transform="translate(-45 0)">
+      <g transform="translate(320 320) scale(2.15) translate(-320 -320)">
+        <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+        <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#baseTint)"/>
+        <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#lidTint)"/>
+        <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#leftTint)"/>
+        <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice" filter="url(#rightTint)"/>
+        <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid slice"/>
+      </g>
     </g>
   </g>
 </svg>`;
