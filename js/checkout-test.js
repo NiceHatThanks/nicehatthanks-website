@@ -1,7 +1,7 @@
-// Hidden sandbox multi-item cart. Only active with ?checkoutTest=1.
+// Multi-item shop cart. Sandbox checkout is enabled only with ?checkoutTest=1.
 (function () {
   const params = new URLSearchParams(window.location.search);
-  if (params.get('checkoutTest') !== '1') return;
+  const isSandbox = params.get('checkoutTest') === '1';
 
   const buyButton = document.querySelector('.buy-button');
   const summary = document.querySelector('.buy-summary');
@@ -14,12 +14,11 @@
   if (!buyButton || !summary || !price || !picker || !customBlock) return;
 
   document.body.classList.add('checkout-test-enabled');
-  if (status) status.textContent = 'Sandbox checkout';
+  if (status) status.textContent = isSandbox ? 'Sandbox checkout' : 'Launching soon';
 
-  // No arbitrary total-unit cap. Keep only generous technical sanity limits.
   const maxLineQuantity = 99;
   const maxCartLines = 20;
-  const storageKey = 'nicehatthanksSandboxCartV2';
+  const storageKey = isSandbox ? 'nicehatthanksSandboxCartV2' : 'nicehatthanksCartV2';
   const productInfo = {
     scoopy: { unitPence: 1599, label: 'Scoopy', needsColours: true },
     scoopy_compact: { unitPence: 1249, label: 'Scoopy Compact', needsColours: true },
@@ -246,7 +245,7 @@
   cartPanel.className = 'sandbox-cart-panel';
   cartPanel.innerHTML = `
     <div class="sandbox-cart-heading">
-      <div><strong>Your sandbox cart</strong><span>Multiple products and colour configurations supported</span></div>
+      <div><strong>${isSandbox ? 'Your sandbox cart' : 'Your cart'}</strong><span>Multiple products and colour configurations supported</span></div>
       <b class="sandbox-cart-total">£0.00</b>
     </div>
     <div class="sandbox-cart-lines"></div>`;
@@ -255,10 +254,12 @@
   if (firstSummaryParagraph) firstSummaryParagraph.insertAdjacentElement('beforebegin', cartPanel);
   else buyButton.insertAdjacentElement('beforebegin', cartPanel);
 
-  const sandboxNotice = document.createElement('div');
-  sandboxNotice.className = 'checkout-test-notice';
-  sandboxNotice.innerHTML = '<strong>Stripe sandbox</strong><span>Test payments only · no real money will be taken</span>';
-  cartPanel.insertAdjacentElement('beforebegin', sandboxNotice);
+  if (isSandbox) {
+    const sandboxNotice = document.createElement('div');
+    sandboxNotice.className = 'checkout-test-notice';
+    sandboxNotice.innerHTML = '<strong>Stripe sandbox</strong><span>Test payments only · no real money will be taken</span>';
+    cartPanel.insertAdjacentElement('beforebegin', sandboxNotice);
+  }
 
   const cartLines = cartPanel.querySelector('.sandbox-cart-lines');
   const cartTotal = cartPanel.querySelector('.sandbox-cart-total');
@@ -330,14 +331,26 @@
     const units = totalUnits();
     const total = (totalPence() / 100).toFixed(2);
     cartTotal.textContent = `£${total}`;
-    buyButton.disabled = units === 0;
-    buyButton.textContent = units
-      ? `Checkout ${units} item${units === 1 ? '' : 's'} · £${total} · sandbox`
-      : 'Add something to your cart';
+
+    if (isSandbox) {
+      buyButton.disabled = units === 0;
+      buyButton.textContent = units
+        ? `Checkout ${units} item${units === 1 ? '' : 's'} · £${total} · sandbox`
+        : 'Add something to your cart';
+    } else {
+      buyButton.disabled = true;
+      buyButton.textContent = units
+        ? `Checkout coming soon · £${total}`
+        : 'Add something to your cart';
+    }
   }
 
   const oldNote = summary.querySelector(':scope > p:last-child');
-  if (oldNote) oldNote.textContent = 'Sandbox checkout is enabled for this test URL only.';
+  if (oldNote) {
+    oldNote.textContent = isSandbox
+      ? 'Sandbox checkout is enabled for this test URL only.'
+      : 'Checkout will open here once postage options are finalised.';
+  }
 
   function restoreState() {
     let saved;
@@ -386,6 +399,8 @@
   });
 
   buyButton.addEventListener('click', async () => {
+    if (!isSandbox) return;
+
     clearError();
     if (!cart.length) return;
 
