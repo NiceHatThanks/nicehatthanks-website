@@ -223,7 +223,32 @@ function colourMatrixFilter(id, colourName) {
   return `<filter id="${id}" color-interpolation-filters="sRGB"><feColorMatrix type="matrix" values="0.153072 0.514944 0.051984 0 ${redOffset} 0.153072 0.514944 0.051984 0 ${greenOffset} 0.153072 0.514944 0.051984 0 ${blueOffset} 0 0 0 1 0"/></filter>`;
 }
 
-function productPreviewSvg(request) {
+function bytesToBase64(bytes) {
+  let binary = '';
+  const chunkSize = 0x8000;
+  for (let offset = 0; offset < bytes.length; offset += chunkSize) {
+    binary += String.fromCharCode(...bytes.subarray(offset, offset + chunkSize));
+  }
+  return btoa(binary);
+}
+
+async function assetDataUrl(path, request, env) {
+  const assetUrl = new URL(path, request.url);
+  const assetRequest = new Request(assetUrl, { method: 'GET' });
+  const response = env.ASSETS
+    ? await env.ASSETS.fetch(assetRequest)
+    : await fetch(assetRequest);
+
+  if (!response.ok) {
+    throw new Error(`Unable to load preview asset: ${path}`);
+  }
+
+  const contentType = response.headers.get('Content-Type') || 'image/png';
+  const bytes = new Uint8Array(await response.arrayBuffer());
+  return `data:${contentType};base64,${bytesToBase64(bytes)}`;
+}
+
+async function productPreviewSvg(request, env) {
   const url = new URL(request.url);
   const productKey = url.searchParams.get('product') || '';
   const layers = previewLayers[productKey];
@@ -242,7 +267,17 @@ function productPreviewSvg(request) {
     return new Response('Invalid colours', { status: 400 });
   }
 
-  const asset = path => new URL(path, url.origin).href.replaceAll('&', '&amp;');
+  let embedded;
+  try {
+    const entries = await Promise.all(
+      Object.entries(layers).map(async ([key, path]) => [key, await assetDataUrl(path, request, env)]),
+    );
+    embedded = Object.fromEntries(entries);
+  } catch (error) {
+    console.error('Unable to build checkout preview', error);
+    return new Response('Unable to build preview', { status: 502 });
+  }
+
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
   <defs>
@@ -252,12 +287,12 @@ function productPreviewSvg(request) {
     ${colourMatrixFilter('rightTint', colours.rightButton)}
   </defs>
   <rect width="640" height="640" rx="42" fill="#F5F0E6"/>
-  <image href="${asset(layers.pcb)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
-  <image href="${asset(layers.base)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#baseTint)"/>
-  <image href="${asset(layers.lid)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#lidTint)"/>
-  <image href="${asset(layers.button1)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#leftTint)"/>
-  <image href="${asset(layers.button2)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#rightTint)"/>
-  <image href="${asset(layers.lightPipes)}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
+  <image href="${embedded.pcb}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
+  <image href="${embedded.base}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#baseTint)"/>
+  <image href="${embedded.lid}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#lidTint)"/>
+  <image href="${embedded.button1}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#leftTint)"/>
+  <image href="${embedded.button2}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet" filter="url(#rightTint)"/>
+  <image href="${embedded.lightPipes}" x="0" y="0" width="640" height="640" preserveAspectRatio="xMidYMid meet"/>
 </svg>`;
 
   return new Response(svg, {
@@ -427,7 +462,7 @@ export default {
       if (request.method !== 'GET') {
         return new Response('Method not allowed', { status: 405 });
       }
-      return productPreviewSvg(request);
+      return productPreviewSvg(request, env);
     }
 
     if (url.pathname === '/api/checkout') {
