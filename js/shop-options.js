@@ -89,9 +89,9 @@
 })();
 
 const checkoutStatusScript = document.createElement('script');
-checkoutStatusScript.src = 'js/checkout-status.js?v=20260822-1';
+checkoutStatusScript.src = 'js/checkout-status.js?v=20260822-2';
 document.body.appendChild(checkoutStatusScript);
 
 const checkoutTestScript = document.createElement('script');
-checkoutTestScript.src = 'js/checkout-test.js?v=20260822-1';
+checkoutTestScript.src = 'js/checkout-test.js?v=20260822-2';
 document.body.appendChild(checkoutTestScript);
