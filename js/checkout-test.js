@@ -308,7 +308,12 @@
       priceCopy.className = 'sandbox-cart-line-price';
       const lineTotal = (productInfo[line.product].unitPence * line.quantity / 100).toFixed(2);
       priceCopy.innerHTML = `<b>£${lineTotal}</b>`;
-      priceCopy.appendChild(buildStepper(() => line, false).element);
+
+      const cartStepper = buildStepper(() => line, false);
+      cartStepper.registration.value.textContent = String(line.quantity);
+      cartStepper.registration.minus.disabled = line.quantity <= 0;
+      cartStepper.registration.plus.disabled = totalUnits() >= maxCartUnits;
+      priceCopy.appendChild(cartStepper.element);
 
       row.append(copy, priceCopy);
       cartLines.appendChild(row);
