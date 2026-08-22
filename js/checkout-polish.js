@@ -5,6 +5,10 @@
 
   const style = document.createElement('style');
   style.textContent = `
+    .checkout-test-enabled .flavour-card[data-name="Nero"] .flavour-preview{
+      background:#F5F0E6;
+    }
+
     @media(min-width:981px){
       .checkout-test-enabled .flavour-card{grid-template-columns:142px minmax(0,1fr);min-height:170px;gap:22px;padding:18px}
       .checkout-test-enabled .flavour-preview{width:134px;height:134px;border-radius:18px}
@@ -52,6 +56,49 @@
       }
     });
   }
+
+  function syncCustomPreviewFromMain() {
+    const mainCanvas = document.getElementById('scoopyCanvas');
+    const customPreview = document.querySelector('.custom-purchase-preview');
+    if (!mainCanvas || !customPreview) return;
+
+    const context = customPreview.getContext('2d');
+    context.clearRect(0, 0, customPreview.width, customPreview.height);
+    context.drawImage(mainCanvas, 0, 0, customPreview.width, customPreview.height);
+
+    const summary = document.querySelector('.custom-purchase-colours');
+    if (summary) {
+      const lid = document.getElementById('lidName')?.textContent?.trim() || 'Vanilla';
+      const base = document.getElementById('baseName')?.textContent?.trim() || 'Vanilla';
+      const left = document.getElementById('button1Name')?.textContent?.trim() || 'Vanilla';
+      const right = document.getElementById('button2Name')?.textContent?.trim() || 'Vanilla';
+      summary.textContent = `${lid} lid · ${base} base · ${left} / ${right} buttons`;
+    }
+  }
+
+  document.body.addEventListener('click', event => {
+    const randomiseButton = event.target.closest('.randomise-button');
+    if (randomiseButton) {
+      // shop.js updates the main render first. Re-selecting the current variant then
+      // lets checkout-test.js refresh its quantity binding for the new custom mix.
+      requestAnimationFrame(() => {
+        const selectedVariant = document.querySelector('.variant-picker .variant-card.is-selected');
+        if (selectedVariant) selectedVariant.click();
+        requestAnimationFrame(syncCustomPreviewFromMain);
+      });
+      return;
+    }
+
+    const quantityButton = event.target.closest('.flavour-purchase .mini-quantity-stepper button');
+    if (quantityButton) {
+      const flavourCard = quantityButton.closest('.flavour-purchase')?.querySelector('.flavour-card');
+      if (flavourCard) {
+        // The quantity button stops the card click from bubbling. Explicitly select
+        // the flavour so the large mobile preview matches the item being adjusted.
+        requestAnimationFrame(() => flavourCard.click());
+      }
+    }
+  });
 
   tidyCartTitles();
   new MutationObserver(tidyCartTitles).observe(document.body, { childList: true, subtree: true });
