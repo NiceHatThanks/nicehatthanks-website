@@ -93,9 +93,9 @@ checkoutStatusScript.src = 'js/checkout-status.js?v=20260822-2';
 document.body.appendChild(checkoutStatusScript);
 
 const checkoutTestScript = document.createElement('script');
-checkoutTestScript.src = 'js/checkout-test.js?v=20260822-3';
+checkoutTestScript.src = 'js/checkout-test.js?v=20260822-4';
 document.body.appendChild(checkoutTestScript);
 
 const checkoutPolishScript = document.createElement('script');
-checkoutPolishScript.src = 'js/checkout-polish.js?v=20260822-6';
+checkoutPolishScript.src = 'js/checkout-polish.js?v=20260822-7';
 document.body.appendChild(checkoutPolishScript);
