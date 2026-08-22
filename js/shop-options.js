@@ -97,5 +97,5 @@ checkoutTestScript.src = 'js/checkout-test.js?v=20260822-3';
 document.body.appendChild(checkoutTestScript);
 
 const checkoutPolishScript = document.createElement('script');
-checkoutPolishScript.src = 'js/checkout-polish.js?v=20260822-5';
+checkoutPolishScript.src = 'js/checkout-polish.js?v=20260822-6';
 document.body.appendChild(checkoutPolishScript);
