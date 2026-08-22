@@ -102,7 +102,7 @@ async function createCheckoutSession(request, env) {
   params.set('line_items[0][price]', product.priceId);
   params.set('line_items[0][quantity]', String(quantity));
   params.set('shipping_address_collection[allowed_countries][0]', 'GB');
-  params.set('success_url', `${origin}/shop.html?checkout=success&session_id={CHECKOUT_SESSION_ID}`);
+  params.set('success_url', `${origin}/shop.html?checkoutTest=1&checkout=success&session_id={CHECKOUT_SESSION_ID}`);
   params.set('cancel_url', `${origin}/shop.html?checkoutTest=1&checkout=cancelled`);
   addMetadata(params, metadata);
 
